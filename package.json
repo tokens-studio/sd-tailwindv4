@@ -1,0 +1,24 @@
+{
+  "name": "sd-tailwindv4-preset",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest watch",
+    "build-tokens": "style-dictionary build --config ./config.js",
+    "dev": "vite",
+    "build": "npm run build-tokens && vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.7",
+    "common-tags": "^1.8.2",
+    "style-dictionary": "^5.0.0",
+    "tailwindcss": "^4.1.7",
+    "vitest": "^1.6.1"
+  }
+}

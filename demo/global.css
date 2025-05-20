@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-sd-colors-surface: #00ff00;
+  --color-sd-colors-secondary: #0000ff;
+  --color-sd-theme-content: #000000;
+}
+
+@layer base {
+  [data-theme="dark"] {
+    --color-sd-theme-content: #fff;
+  }
+}
+
+@layer base {
+  [data-theme="brand"] {
+    --color-sd-theme-content: #ff0000;
+  }
+}
