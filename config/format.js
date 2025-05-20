@@ -1,40 +1,53 @@
+/**
+ * Checks if a token is a theme token.
+ * @param {string} tokenName
+ * @returns {boolean}
+ */
 function isThemeToken(tokenName) {
-  return tokenName.includes("theme-content");
+  return typeof tokenName === 'string' && tokenName.includes("theme-content");
 }
 
+/**
+ * Gets the theme variant from a token name.
+ * @param {string} tokenName
+ * @param {string} [rootPropertyName="_"]
+ * @returns {string|null}
+ */
 function getThemeVariant(tokenName, rootPropertyName = "_") {
   const parts = tokenName.split("-");
-  // Only consider the last part as a variant if it's not 'content'
   const variant = parts[parts.length - 1];
-  return variant === "content"
-    ? null
-    : variant === rootPropertyName
-      ? null
-      : variant;
+  return variant === "content" || variant === rootPropertyName ? null : variant;
 }
 
+/**
+ * Normalizes the theme token name by removing the variant suffix if needed.
+ * @param {string} tokenName
+ * @param {string} [rootPropertyName="_"]
+ * @returns {string}
+ */
 function normalizeThemeTokenName(tokenName, rootPropertyName = "_") {
   if (isThemeToken(tokenName)) {
     const parts = tokenName.split("-");
     const lastPart = parts[parts.length - 1];
-    if (
-      lastPart === rootPropertyName ||
-      (lastPart !== "content" && lastPart !== rootPropertyName)
-    ) {
+    if (lastPart === rootPropertyName || (lastPart !== "content" && lastPart !== rootPropertyName)) {
       return parts.slice(0, -1).join("-");
     }
   }
   return tokenName;
 }
 
+/**
+ * Creates a color variable object from a token.
+ * @param {object} token
+ * @param {string} [rootPropertyName="_"]
+ * @returns {{name: string, value: string, variant: string|null}}
+ */
 function createColorVariable(token, rootPropertyName = "_") {
-  const value = token?.$value || token?.value;
+  if (!token || typeof token.name !== 'string') return { name: '', value: '', variant: null };
+  const value = token.$value ?? token.value;
   const isTheme = isThemeToken(token.name);
   const normalizedName = normalizeThemeTokenName(token.name, rootPropertyName);
-  const variant = isTheme
-    ? getThemeVariant(token.name, rootPropertyName)
-    : null;
-
+  const variant = isTheme ? getThemeVariant(token.name, rootPropertyName) : null;
   return {
     name: `--color-${normalizedName}`,
     value,
@@ -42,126 +55,150 @@ function createColorVariable(token, rootPropertyName = "_") {
   };
 }
 
+/**
+ * Template helpers for CSS output
+ */
+const css = {
+  indent: (str, level = 1) => str.split('\n').map(line => line ? '  '.repeat(level) + line : '').join('\n'),
+  block: (content, level = 1) => `{
+${css.indent(content, level)}
+}`,
+  rule: (selector, content) => `${selector} {
+${css.indent(content, 1)}
+}`,
+  property: (name, value) => `${name}: ${value};`,
+  import: (path) => `@import '${path}';`,
+  theme: (content) => `@theme ${css.block(content, 1)}`,
+  layer: (name, content) => `@layer ${name} ${css.block(content, 1)}`,
+  utility: (name, content) => `@utility ${name} ${css.block(content, 1)}`,
+  customVariant: (name, selector) => `@custom-variant ${name} (${selector});`,
+  join: (arr, separator = '\n') => arr.filter(Boolean).join(separator)
+};
+
+/**
+ * Creates a utility directive string from a token.
+ * @param {object} token
+ * @returns {{name: string, properties: string}}
+ */
 function createUtilityDirective(token) {
-  const value = token?.$value || token?.value;
+  if (!token || typeof token.name !== 'string' || typeof token.$value !== 'object') return { name: '', properties: '' };
+  const value = token.$value ?? token.value;
   const name = token.name.replace(/^sd\./, "").replace(/\./g, "-");
-
-  // Convert the value object into CSS properties
   const properties = Object.entries(value)
-    .map(([key, val]) => `  ${key}: ${val};`)
+    .map(([key, val]) => css.property(key, val))
     .join("\n");
-
   return {
     name,
-    properties: `@utility ${name} {\n${properties}\n}`,
+    properties: css.utility(name, properties)
   };
 }
 
+/**
+ * Creates a spacing variable from a token.
+ * @param {object} token
+ * @returns {{name: string, value: string}}
+ */
 function createSpacingVariable(token) {
-  const value = token?.$value || token?.value;
+  if (!token || typeof token.name !== 'string') return { name: '', value: '' };
+  const value = token.$value ?? token.value;
   const name = token.name.replace(/^sd\./, "").replace(/\./g, "-");
-
   return {
     name: `--spacing-${name}`,
     value,
   };
 }
 
+/**
+ * Processes all tokens and groups them by type.
+ * @param {object} dictionary
+ * @param {string} [rootPropertyName="_"]
+ * @returns {{baseVars: string[], themeVars: Map<string, string[]>, utilityDirectives: string[], spacingVariables: string[]}}
+ */
 function processTokens(dictionary, rootPropertyName = "_") {
-  const themeVars = new Map(); // Map to store variables by theme variant
-  const baseVars = []; // Array for base theme variables
-  const utilityDirectives = []; // Array for utility directives
-  const spacingVariables = []; // Array for spacing variables
-
-  dictionary.allTokens.forEach((token) => {
+  const themeVars = new Map();
+  const baseVars = [];
+  const utilityDirectives = [];
+  const spacingVariables = [];
+  if (!dictionary || !Array.isArray(dictionary.allTokens)) return { baseVars, themeVars, utilityDirectives, spacingVariables };
+  for (const token of dictionary.allTokens) {
+    if (!token || typeof token.$type !== 'string') continue;
     if (token.$type === "color") {
-      const { name, value, variant } = createColorVariable(
-        token,
-        rootPropertyName
-      );
-      const varString = `${name}: ${value};`;
-
+      const { name, value, variant } = createColorVariable(token, rootPropertyName);
+      if (!name) continue;
+      const varString = css.property(name, value);
       if (variant) {
-        // Group by theme variant
-        if (!themeVars.has(variant)) {
-          themeVars.set(variant, []);
-        }
-        themeVars.get(variant).push(varString);
+        const arr = themeVars.get(variant) || [];
+        arr.push(varString);
+        themeVars.set(variant, arr);
       } else {
-        // Regular variables and underscore variants go in base theme
         baseVars.push(varString);
       }
     } else if (token.$type === "utility") {
       const utility = createUtilityDirective(token);
-      utilityDirectives.push(utility.properties);
+      if (utility.properties) utilityDirectives.push(utility.properties);
     } else if (token.$type === "dimension") {
       const spacing = createSpacingVariable(token);
-      spacingVariables.push(`${spacing.name}: ${spacing.value};`);
+      if (spacing.name) spacingVariables.push(css.property(spacing.name, spacing.value));
     }
-  });
-
+  }
   return { baseVars, themeVars, utilityDirectives, spacingVariables };
 }
 
+/**
+ * Main Style Dictionary format plugin for Tailwind v4 tokens.
+ * @param {object} param0
+ * @param {object} param0.dictionary
+ * @param {object} [param0.options]
+ * @returns {string}
+ */
 export function cssVarsPlugin({ dictionary, options = {} }) {
-  const rootPropertyName = options.rootPropertyName || "_";
-  const generateCustomVariants = options.generateCustomVariants ?? false;
+  const {
+    rootPropertyName = "_",
+    generateCustomVariants = false,
+    themeSelector = "data"
+  } = options;
+  const themeSelectorType = typeof themeSelector === "string" ? themeSelector : themeSelector.type;
+  const themeSelectorProperty = typeof themeSelector === "string" ? "theme" : themeSelector.property || "theme";
+  const { baseVars, themeVars, utilityDirectives, spacingVariables } = processTokens(dictionary, rootPropertyName);
 
-  // Handle theme selector configuration
-  const themeSelectorConfig = options.themeSelector || "data";
-  const themeSelectorType =
-    typeof themeSelectorConfig === "string"
-      ? themeSelectorConfig
-      : themeSelectorConfig.type;
-  const themeSelectorProperty =
-    typeof themeSelectorConfig === "string"
-      ? "theme"
-      : themeSelectorConfig.property || "theme";
-
-  const { baseVars, themeVars, utilityDirectives, spacingVariables } =
-    processTokens(dictionary, rootPropertyName);
-
-  // Helper to generate the selector for a theme
   function getThemeSelector(variant) {
-    if (themeSelectorType === "class") {
-      return `.${variant}`;
-    } else {
-      return `[data-${themeSelectorProperty}="${variant}"]`;
-    }
+    return themeSelectorType === "class"
+      ? `.${variant}`
+      : `[data-${themeSelectorProperty}="${variant}"]`;
   }
 
   const hasTheme = themeVars.size > 0;
 
   // Generate theme layers
   const themeLayers = [
-    `@theme {\n  ${[...baseVars, ...spacingVariables].join("\n  ")}\n}`,
-    // Combine all theme variants into a single @layer base
+    css.theme(css.join([...baseVars, ...spacingVariables], '\n')),
     hasTheme
-      ? `@layer base {\n${Array.from(themeVars.entries())
-          .map(
-            ([variant, vars]) =>
-              `  ${getThemeSelector(variant)} {\n    ${vars.join("\n    ")}\n  }`
-          )
-          .join("\n\n")}\n}`
-      : null,
+      ? css.layer('base', css.join(
+          Array.from(themeVars.entries()).map(([variant, vars]) =>
+            css.rule(getThemeSelector(variant), css.join(vars, '\n'))
+          ),
+          '\n\n'
+        ))
+      : null
   ].filter(Boolean);
 
-  // Generate custom variants for each theme if enabled
+  // Generate custom variants
   const customVariants = generateCustomVariants
     ? Array.from(themeVars.keys()).map((variant) =>
         themeSelectorType === "class"
-          ? `@custom-variant ${variant} (&:where(.${variant}, .${variant} *));`
-          : `@custom-variant ${variant} (&:where([data-${themeSelectorProperty}=${variant}], [data-${themeSelectorProperty}=${variant}] *));`
+          ? css.customVariant(variant, `&:where(.${variant}, .${variant} *)`)
+          : css.customVariant(variant, `&:where([data-${themeSelectorProperty}=${variant}], [data-${themeSelectorProperty}=${variant}] *)`)
       )
     : [];
 
-  // Combine all parts with consistent spacing
+  // Combine all parts with proper spacing to match test expectations
   const parts = [
-    `@import 'tailwindcss';`,
-    customVariants.length ? customVariants.join("\n") : null,
-    themeLayers.join("\n\n"),
-    utilityDirectives.length ? utilityDirectives.join("\n\n") : null,
+    css.import('tailwindcss'),
+    customVariants.length ? css.join(customVariants, '\n') : null,
+    css.join(themeLayers, '\n\n'),
+    utilityDirectives.length ? css.join(utilityDirectives, '\n\n') : null
   ].filter(Boolean);
 
-  return parts.join("\n\n") + "\n";
+  // Match the exact format expected by the tests
+  return parts.join('\n\n') + '\n';
 }
