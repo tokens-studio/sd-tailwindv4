@@ -1,3 +1,5 @@
+import StyleDictionary from 'style-dictionary';
+
 /**
  * Checks if a token is a theme token.
  * @param {string} tokenName
@@ -85,7 +87,12 @@ function createUtilityDirective(token) {
   const value = token.$value ?? token.value;
   const name = token.name.replace(/^sd\./, "").replace(/\./g, "-");
   const properties = Object.entries(value)
-    .map(([key, val]) => css.property(key, val))
+    .map(([key, val]) => {
+      if (typeof val === "object" && "$value" in val) {
+        return css.property(key, val.$value)
+      }
+      return css.property(key, val)
+    })
     .join("\n");
   return {
     name,
@@ -109,19 +116,57 @@ function createSpacingVariable(token) {
 }
 
 /**
+ * Creates a composition variable from a token.
+ * @param {object} token
+ * @returns {{name: string, value: string}}
+ */
+function createCompositionVariable(token) {
+  if (!token || typeof token.name !== 'string' || typeof token.$value !== 'object') {
+    return { name: '', value: '' };
+  }
+
+  const value = token.$value;
+  const name = token.name.replace(/^sd\./, "").replace(/\./g, "-");
+
+  // Convert each property in the composition to a CSS custom property
+  const properties = Object.entries(value)
+    .map(([key, val]) => {
+      // Convert camelCase to kebab-case for CSS properties
+      const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+
+      // Use the transformed value from Style Dictionary
+      const finalValue = typeof val === 'object' ? val.$value : val;
+
+      return css.property(`--${name}-${cssKey}`, finalValue);
+    })
+    .join('\n');
+
+  return {
+    name,
+    properties
+  };
+}
+
+/**
  * Processes all tokens and groups them by type.
  * @param {object} dictionary
  * @param {string} [rootPropertyName="_"]
- * @returns {{baseVars: string[], themeVars: Map<string, string[]>, utilityDirectives: string[], spacingVariables: string[]}}
+ * @returns {{baseVars: string[], themeVars: Map<string, string[]>, utilityDirectives: string[], spacingVariables: string[], compositionVariables: string[]}}
  */
 function processTokens(dictionary, rootPropertyName = "_") {
   const themeVars = new Map();
   const baseVars = [];
   const utilityDirectives = [];
   const spacingVariables = [];
-  if (!dictionary || !Array.isArray(dictionary.allTokens)) return { baseVars, themeVars, utilityDirectives, spacingVariables };
+  const compositionVariables = [];
+
+  if (!dictionary || !Array.isArray(dictionary.allTokens)) {
+    return { baseVars, themeVars, utilityDirectives, spacingVariables, compositionVariables };
+  }
+
   for (const token of dictionary.allTokens) {
     if (!token || typeof token.$type !== 'string') continue;
+
     if (token.$type === "color") {
       const { name, value, variant } = createColorVariable(token, rootPropertyName);
       if (!name) continue;
@@ -139,9 +184,13 @@ function processTokens(dictionary, rootPropertyName = "_") {
     } else if (token.$type === "dimension") {
       const spacing = createSpacingVariable(token);
       if (spacing.name) spacingVariables.push(css.property(spacing.name, spacing.value));
+    } else if (token.$type === "composition") {
+      const composition = createCompositionVariable(token);
+      if (composition.properties) compositionVariables.push(composition.properties);
     }
   }
-  return { baseVars, themeVars, utilityDirectives, spacingVariables };
+
+  return { baseVars, themeVars, utilityDirectives, spacingVariables, compositionVariables };
 }
 
 /**
@@ -159,7 +208,7 @@ export function cssVarsPlugin({ dictionary, options = {} }) {
   } = options;
   const themeSelectorType = typeof themeSelector === "string" ? themeSelector : themeSelector.type;
   const themeSelectorProperty = typeof themeSelector === "string" ? "theme" : themeSelector.property || "theme";
-  const { baseVars, themeVars, utilityDirectives, spacingVariables } = processTokens(dictionary, rootPropertyName);
+  const { baseVars, themeVars, utilityDirectives, spacingVariables, compositionVariables } = processTokens(dictionary, rootPropertyName);
 
   function getThemeSelector(variant) {
     return themeSelectorType === "class"
@@ -171,7 +220,7 @@ export function cssVarsPlugin({ dictionary, options = {} }) {
 
   // Generate theme layers
   const themeLayers = [
-    css.theme(css.join([...baseVars, ...spacingVariables], '\n')),
+    css.theme(css.join([...baseVars, ...spacingVariables, ...compositionVariables], '\n')),
     hasTheme
       ? css.layer('base', css.join(
           Array.from(themeVars.entries()).map(([variant, vars]) =>

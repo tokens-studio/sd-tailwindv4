@@ -20,5 +20,8 @@
     "style-dictionary": "^5.0.0",
     "tailwindcss": "^4.1.7",
     "vitest": "^1.6.1"
+  },
+  "dependencies": {
+    "@tokens-studio/sd-transforms": "^1.3.0"
   }
 }

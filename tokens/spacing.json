@@ -1,8 +1,4 @@
 {
-  "baseRoot": {
-    "$type": "dimension",
-    "$value": "1rem"
-  },
   "around-card": {
     "$type": "dimension",
     "$value": "16"

@@ -1,0 +1,20 @@
+{
+  "card": {
+    "$type": "composition",
+    "$value": {
+      "verticalPadding": "{around-card}",
+      "horizontalPadding": {
+        "$type": "dimension",
+        "$value": "16"
+      },
+      "borderRadius": {
+        "$type": "dimension",
+        "$value": "4"
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{between-card}"
+      }
+    }
+  }
+}

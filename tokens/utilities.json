@@ -4,7 +4,10 @@
     "$value": {
       "display": "flex",
       "flex-direction": "column",
-      "gap": "1rem"
+      "gap": {
+        "$type": "dimension",
+        "$value": "16"
+      }
     }
   },
   "row": {
