@@ -7,13 +7,16 @@
 }
 
 @layer base {
-  [data-theme="dark"] {
+  .dark {
     --color-sd-theme-content: #fff;
   }
 }
 
 @layer base {
-  [data-theme="brand"] {
+  .brand {
     --color-sd-theme-content: #ff0000;
   }
 }
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant brand (&:where(.brand, .brand *));

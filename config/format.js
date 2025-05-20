@@ -31,24 +31,24 @@ function isThemeToken(tokenName) {
   return tokenName.includes("theme-content");
 }
 
-function getThemeVariant(tokenName, baseDelimiter = "_") {
+function getThemeVariant(tokenName, rootPropertyName = "_") {
   const parts = tokenName.split("-");
   // Only consider the last part as a variant if it's not 'content'
   const variant = parts[parts.length - 1];
   return variant === "content"
     ? null
-    : variant === baseDelimiter
+    : variant === rootPropertyName
       ? null
       : variant;
 }
 
-function normalizeThemeTokenName(tokenName, baseDelimiter = "_") {
+function normalizeThemeTokenName(tokenName, rootPropertyName = "_") {
   if (isThemeToken(tokenName)) {
     const parts = tokenName.split("-");
     const lastPart = parts[parts.length - 1];
     if (
-      lastPart === baseDelimiter ||
-      (lastPart !== "content" && lastPart !== baseDelimiter)
+      lastPart === rootPropertyName ||
+      (lastPart !== "content" && lastPart !== rootPropertyName)
     ) {
       return parts.slice(0, -1).join("-");
     }
@@ -56,11 +56,11 @@ function normalizeThemeTokenName(tokenName, baseDelimiter = "_") {
   return tokenName;
 }
 
-function createColorVariable(token, baseDelimiter = "_") {
+function createColorVariable(token, rootPropertyName = "_") {
   const value = token?.$value || token?.value;
   const isTheme = isThemeToken(token.name);
-  const normalizedName = normalizeThemeTokenName(token.name, baseDelimiter);
-  const variant = isTheme ? getThemeVariant(token.name, baseDelimiter) : null;
+  const normalizedName = normalizeThemeTokenName(token.name, rootPropertyName);
+  const variant = isTheme ? getThemeVariant(token.name, rootPropertyName) : null;
 
   return {
     name: `--color-${normalizedName}`,
@@ -69,7 +69,7 @@ function createColorVariable(token, baseDelimiter = "_") {
   };
 }
 
-function processTokens(dictionary, baseDelimiter = "_") {
+function processTokens(dictionary, rootPropertyName = "_") {
   const themeVars = new Map(); // Map to store variables by theme variant
   const baseVars = []; // Array for base theme variables
 
@@ -77,7 +77,7 @@ function processTokens(dictionary, baseDelimiter = "_") {
     if (token.$type === "color") {
       const { name, value, variant } = createColorVariable(
         token,
-        baseDelimiter
+        rootPropertyName
       );
       const varString = `${name}: ${value};`;
 
@@ -99,17 +99,47 @@ function processTokens(dictionary, baseDelimiter = "_") {
 }
 
 export function cssVarsPlugin({ dictionary, options = {} }) {
-  const baseDelimiter = options.baseDelimiter || "_";
-  const { baseVars, themeVars } = processTokens(dictionary, baseDelimiter);
+  const rootPropertyName = options.rootPropertyName || "_";
+  const generateCustomVariants = options.generateCustomVariants ?? false;
+
+  // Handle theme selector configuration
+  const themeSelectorConfig = options.themeSelector || 'data';
+  const themeSelectorType = typeof themeSelectorConfig === 'string'
+    ? themeSelectorConfig
+    : themeSelectorConfig.type;
+  const themeSelectorProperty = typeof themeSelectorConfig === 'string'
+    ? 'theme'
+    : themeSelectorConfig.property || 'theme';
+
+  const { baseVars, themeVars } = processTokens(dictionary, rootPropertyName);
+
+  // Helper to generate the selector for a theme
+  function getThemeSelector(variant) {
+    if (themeSelectorType === 'class') {
+      return `.${variant}`;
+    } else {
+      return `[data-${themeSelectorProperty}="${variant}"]`;
+    }
+  }
 
   // Generate theme layers
   const themeLayers = [
     `@theme {\n  ${baseVars.join("\n  ")}\n}`,
     ...Array.from(themeVars.entries()).map(
       ([variant, vars]) =>
-        `@layer base {\n  [data-theme="${variant}"] {\n    ${vars.join("\n    ")}\n  }\n}`
+        `@layer base {\n  ${getThemeSelector(variant)} {\n    ${vars.join("\n    ")}\n  }\n}`
     ),
   ];
 
-  return `@import 'tailwindcss';\n\n${themeLayers.join("\n\n")}\n`;
+  // Generate custom variants for each theme if enabled
+  const customVariants = generateCustomVariants
+    ? Array.from(themeVars.keys()).map(
+        (variant) =>
+          themeSelectorType === 'class'
+            ? `@custom-variant ${variant} (&:where(.${variant}, .${variant} *));`
+            : `@custom-variant ${variant} (&:where([data-${themeSelectorProperty}=${variant}], [data-${themeSelectorProperty}=${variant}] *));`
+      )
+    : [];
+
+  return `@import 'tailwindcss';\n\n${themeLayers.join("\n\n")}${customVariants.length ? "\n\n" + customVariants.join("\n") : ""}\n`;
 }

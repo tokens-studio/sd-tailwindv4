@@ -22,7 +22,9 @@ export default {
           destination: "global.css",
           format: "tailwindv4/css-vars-plugin",
           options: {
-            baseDelimiter: '_'
+            rootPropertyName: '_',
+            generateCustomVariants: true,
+            themeSelector: 'class'
           }
         },
       ],
