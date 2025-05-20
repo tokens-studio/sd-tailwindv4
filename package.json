@@ -9,7 +9,7 @@
     "test:watch": "vitest watch",
     "build-tokens": "style-dictionary build --config ./config.js",
     "dev": "vite",
-    "build": "npm run build-tokens && vite build"
+    "start": "npm run build-tokens && npm run dev"
   },
   "keywords": [],
   "author": "",
