@@ -18,5 +18,16 @@
   }
 }
 
+@utility sd-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@utility sd-row {
+  display: flex;
+  flex-direction: row;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant brand (&:where(.brand, .brand *));
