@@ -23,7 +23,12 @@
 }
 
 @layer components {
-
+  .card {
+    padding-block: var(--spacing-card-vertical-padding);
+    padding-inline: var(--spacing-card-horizontal-padding);
+    border-radius: var(--spacing-card-border-radius);
+    gap: var(--spacing-card-gap);
+  }
 }
 
 @utility stack {

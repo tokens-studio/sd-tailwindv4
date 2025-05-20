@@ -134,15 +134,16 @@ function createSpacingVariable(token) {
  * Creates a composition variable from a token.
  * @param {object} token
  * @param {object} dictionary
- * @returns {{name: string, value: string}}
+ * @returns {{name: string, properties: string, className: string}}
  */
 function createCompositionVariable(token, dictionary) {
   if (!token || typeof token.name !== 'string' || typeof token.$value !== 'object') {
-    return { name: '', value: '' };
+    return { name: '', properties: '', className: '' };
   }
 
   const value = token.$value;
   const name = token.name.replace(/^sd\./, "").replace(/\./g, "-");
+  const className = `.${name}`; // Create a class name from the token name
 
   // Helper to normalize token names for matching
   function normalizeTokenName(n) {
@@ -188,9 +189,48 @@ function createCompositionVariable(token, dictionary) {
     })
     .join('\n');
 
+  // Create CSS properties that reference our variables
+  const cssProperties = Object.entries(value)
+    .map(([key, val]) => {
+      const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+      let prefix = '';
+
+      if (val && typeof val === 'object') {
+        if (val.$type === 'dimension') {
+          prefix = 'spacing-';
+        } else if (val.$type === 'color') {
+          prefix = 'color-';
+        }
+      } else if (typeof val === 'string' && val.startsWith('{')) {
+        const refName = val.slice(1, -1);
+        const refNorm = normalizeTokenName(refName);
+        const refToken = dictionary.allTokens.find(t => normalizeTokenName(t.name) === refNorm);
+        if (refToken && refToken.$type === 'dimension') {
+          prefix = 'spacing-';
+        } else if (refToken && refToken.$type === 'color') {
+          prefix = 'color-';
+        }
+      }
+
+      // Map the composition properties to CSS properties
+      const cssPropertyMap = {
+        verticalPadding: 'padding-block',
+        horizontalPadding: 'padding-inline',
+        borderRadius: 'border-radius',
+        gap: 'gap',
+        backgroundColor: 'background-color'
+      };
+
+      const cssProperty = cssPropertyMap[key] || cssKey;
+      return css.property(cssProperty, `var(--${prefix}${name}-${cssKey})`);
+    })
+    .join('\n');
+
   return {
     name,
-    properties
+    properties,
+    className,
+    cssProperties
   };
 }
 
@@ -198,7 +238,7 @@ function createCompositionVariable(token, dictionary) {
  * Processes all tokens and groups them by type.
  * @param {object} dictionary
  * @param {string} [rootPropertyName="_"]
- * @returns {{baseVars: string[], themeVars: Map<string, string[]>, utilityDirectives: string[], spacingVariables: string[], compositionVariables: string[]}}
+ * @returns {{baseVars: string[], themeVars: Map<string, string[]>, utilityDirectives: string[], spacingVariables: string[], compositionVariables: string[], componentClasses: string[]}}
  */
 function processTokens(dictionary, rootPropertyName = "_") {
   const themeVars = new Map();
@@ -209,24 +249,14 @@ function processTokens(dictionary, rootPropertyName = "_") {
   const componentClasses = [];
 
   if (!dictionary || !Array.isArray(dictionary.allTokens)) {
-    return {
-      baseVars,
-      themeVars,
-      utilityDirectives,
-      spacingVariables,
-      compositionVariables,
-      componentClasses,
-    };
+    return { baseVars, themeVars, utilityDirectives, spacingVariables, compositionVariables, componentClasses };
   }
 
   for (const token of dictionary.allTokens) {
-    if (!token || typeof token.$type !== "string") continue;
+    if (!token || typeof token.$type !== 'string') continue;
 
     if (token.$type === "color") {
-      const { name, value, variant } = createColorVariable(
-        token,
-        rootPropertyName
-      );
+      const { name, value, variant } = createColorVariable(token, rootPropertyName);
       if (!name) continue;
       const varString = css.property(name, value);
       if (variant) {
@@ -241,23 +271,20 @@ function processTokens(dictionary, rootPropertyName = "_") {
       if (utility.properties) utilityDirectives.push(utility.properties);
     } else if (token.$type === "dimension") {
       const spacing = createSpacingVariable(token);
-      if (spacing.name)
-        spacingVariables.push(css.property(spacing.name, spacing.value));
+      if (spacing.name) spacingVariables.push(css.property(spacing.name, spacing.value));
     } else if (token.$type === "composition") {
       const composition = createCompositionVariable(token, dictionary);
-      if (composition.properties)
+      if (composition.properties) {
         compositionVariables.push(composition.properties);
+        // Add the class with its CSS properties
+        if (composition.className) {
+          componentClasses.push(css.rule(composition.className, composition.cssProperties));
+        }
+      }
     }
   }
 
-  return {
-    baseVars,
-    themeVars,
-    utilityDirectives,
-    spacingVariables,
-    compositionVariables,
-    componentClasses,
-  };
+  return { baseVars, themeVars, utilityDirectives, spacingVariables, compositionVariables, componentClasses };
 }
 
 /**
