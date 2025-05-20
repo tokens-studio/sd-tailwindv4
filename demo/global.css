@@ -7,27 +7,22 @@
 }
 
 @layer base {
-  .dark {
+  [data-theme="dark"] {
     --color-sd-theme-content: #fff;
   }
-}
 
-@layer base {
-  .brand {
+  [data-theme="brand"] {
     --color-sd-theme-content: #ff0000;
   }
 }
 
-@utility sd-stack {
+@utility stack {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-@utility sd-row {
+@utility row {
   display: flex;
   flex-direction: row;
 }
-
-@custom-variant dark (&:where(.dark, .dark *));
-@custom-variant brand (&:where(.brand, .brand *));

@@ -1,32 +1,3 @@
-function tokenFilter(token) {
-  const utilities = new Set();
-  const typography = new Set();
-  const dimensions = new Set();
-  const colors = new Set();
-
-  switch (token.$type) {
-    case "color":
-      const colorName = token.name.replace(/^sd\./, "");
-      colors.add(`color-${colorName}`);
-      break;
-
-    case "utility":
-    // Filter out utilities and create custom tailwind utility classes for them.
-    // Next step - identify the tokens that can be converted to functional utilities.
-    // https://tailwindcss.com/docs/adding-custom-styles#functional-utilities
-    case "typography":
-    // Filter out typography tokens and create custom tailwind typography utility classes for them.
-    case "dimension":
-      // Filter out dimension tokens and create custom tailwind dimension utility classes for them.
-      // Next step - identify the tokens that can be converted to functional utilities and create a new functional utility class
-      break;
-  }
-
-  return [...utilities, ...typography, ...dimensions, ...colors];
-}
-
-function createUtility(token) {}
-
 function isThemeToken(tokenName) {
   return tokenName.includes("theme-content");
 }
@@ -60,7 +31,9 @@ function createColorVariable(token, rootPropertyName = "_") {
   const value = token?.$value || token?.value;
   const isTheme = isThemeToken(token.name);
   const normalizedName = normalizeThemeTokenName(token.name, rootPropertyName);
-  const variant = isTheme ? getThemeVariant(token.name, rootPropertyName) : null;
+  const variant = isTheme
+    ? getThemeVariant(token.name, rootPropertyName)
+    : null;
 
   return {
     name: `--color-${normalizedName}`,
@@ -80,7 +53,7 @@ function createUtilityDirective(token) {
 
   return {
     name,
-    properties: `@utility ${name} {\n${properties}\n}`
+    properties: `@utility ${name} {\n${properties}\n}`,
   };
 }
 
@@ -121,50 +94,61 @@ export function cssVarsPlugin({ dictionary, options = {} }) {
   const generateCustomVariants = options.generateCustomVariants ?? false;
 
   // Handle theme selector configuration
-  const themeSelectorConfig = options.themeSelector || 'data';
-  const themeSelectorType = typeof themeSelectorConfig === 'string'
-    ? themeSelectorConfig
-    : themeSelectorConfig.type;
-  const themeSelectorProperty = typeof themeSelectorConfig === 'string'
-    ? 'theme'
-    : themeSelectorConfig.property || 'theme';
+  const themeSelectorConfig = options.themeSelector || "data";
+  const themeSelectorType =
+    typeof themeSelectorConfig === "string"
+      ? themeSelectorConfig
+      : themeSelectorConfig.type;
+  const themeSelectorProperty =
+    typeof themeSelectorConfig === "string"
+      ? "theme"
+      : themeSelectorConfig.property || "theme";
 
-  const { baseVars, themeVars, utilityDirectives } = processTokens(dictionary, rootPropertyName);
+  const { baseVars, themeVars, utilityDirectives } = processTokens(
+    dictionary,
+    rootPropertyName
+  );
 
   // Helper to generate the selector for a theme
   function getThemeSelector(variant) {
-    if (themeSelectorType === 'class') {
+    if (themeSelectorType === "class") {
       return `.${variant}`;
     } else {
       return `[data-${themeSelectorProperty}="${variant}"]`;
     }
   }
 
+  const hasTheme = themeVars.size > 0;
+
   // Generate theme layers
   const themeLayers = [
     `@theme {\n  ${baseVars.join("\n  ")}\n}`,
-    ...Array.from(themeVars.entries()).map(
-      ([variant, vars]) =>
-        `@layer base {\n  ${getThemeSelector(variant)} {\n    ${vars.join("\n    ")}\n  }\n}`
-    ),
-  ];
+    // Combine all theme variants into a single @layer base
+    hasTheme
+      ? `@layer base {\n${Array.from(themeVars.entries())
+          .map(
+            ([variant, vars]) =>
+              `  ${getThemeSelector(variant)} {\n    ${vars.join("\n    ")}\n  }`
+          )
+          .join("\n\n")}\n}`
+      : null,
+  ].filter(Boolean);
 
   // Generate custom variants for each theme if enabled
   const customVariants = generateCustomVariants
-    ? Array.from(themeVars.keys()).map(
-        (variant) =>
-          themeSelectorType === 'class'
-            ? `@custom-variant ${variant} (&:where(.${variant}, .${variant} *));`
-            : `@custom-variant ${variant} (&:where([data-${themeSelectorProperty}=${variant}], [data-${themeSelectorProperty}=${variant}] *));`
+    ? Array.from(themeVars.keys()).map((variant) =>
+        themeSelectorType === "class"
+          ? `@custom-variant ${variant} (&:where(.${variant}, .${variant} *));`
+          : `@custom-variant ${variant} (&:where([data-${themeSelectorProperty}=${variant}], [data-${themeSelectorProperty}=${variant}] *));`
       )
     : [];
 
-  // Combine all parts
+  // Combine all parts with consistent spacing
   const parts = [
     `@import 'tailwindcss';`,
+    customVariants.length ? customVariants.join("\n") : null,
     themeLayers.join("\n\n"),
     utilityDirectives.length ? utilityDirectives.join("\n\n") : null,
-    customVariants.length ? customVariants.join("\n") : null
   ].filter(Boolean);
 
   return parts.join("\n\n") + "\n";

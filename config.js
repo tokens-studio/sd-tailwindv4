@@ -23,8 +23,10 @@ export default {
           format: "tailwindv4/css-vars-plugin",
           options: {
             rootPropertyName: '_',
-            generateCustomVariants: true,
-            themeSelector: 'class'
+            themeSelector: {
+              type: 'data',
+              property: 'theme'
+            }
           }
         },
       ],

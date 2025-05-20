@@ -81,7 +81,7 @@ describe("format.js", () => {
 
       const result = cssVarsPlugin({
         dictionary,
-        options: { baseDelimiter: "default" },
+        options: { rootPropertyName: "default" },
       });
       expect(normalize(result)).toEqual(
         normalize(stripIndent`
@@ -133,9 +133,7 @@ describe("format.js", () => {
             [data-theme="dark"] {
               --color-sd-theme-content: #ffffff;
             }
-          }
 
-          @layer base {
             [data-theme="brand"] {
               --color-sd-theme-content: #ff0000;
             }
