@@ -7,7 +7,7 @@ register(StyleDictionary);
 
 StyleDictionary.registerTransform({
   type: "value",
-  name: "ts-tailwindv4/handle-composition/px",
+  name: "ts-tailwindv4/composition/px",
   transitive: true,
   matcher: function (token) {
     return token.$type === "composition" || token.$type === "utility";
@@ -38,12 +38,12 @@ export default {
   platforms: {
     tailwind: {
       buildPath: "demo",
-      transformGroup: "tokens-studio", // <-- apply the tokens-studio transformGroup to apply all transforms
+      transformGroup: "tokens-studio",
       transforms: [
         "name/kebab",
         "color/hsl",
         "size/px",
-        "ts-tailwindv4/handle-composition/px",
+        "ts-tailwindv4/composition/px",
       ],
       files: [
         {
@@ -51,6 +51,7 @@ export default {
           format: "ts-tailwindv4/css-vars-plugin",
           options: {
             rootPropertyName: "_",
+            createComponentClasses: true,
             themeSelector: {
               type: "data",
               property: "theme",
@@ -61,35 +62,3 @@ export default {
     },
   },
 };
-
-function createCompositionVariable(token) {
-  if (
-    !token ||
-    typeof token.name !== "string" ||
-    typeof token.$value !== "object"
-  ) {
-    return { name: "", value: "" };
-  }
-
-  const value = token.$value;
-  const name = token.name.replace(/^sd\./, "").replace(/\./g, "-");
-
-  const properties = Object.entries(value)
-    .map(([key, val]) => {
-      const cssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
-      // Output the value as-is, trusting transforms have already been applied
-      let finalValue;
-      if (val && typeof val === "object" && "$value" in val) {
-        finalValue = val.$value;
-      } else {
-        finalValue = val;
-      }
-      return css.property(`--${name}-${cssKey}`, finalValue);
-    })
-    .join("\n");
-
-  return {
-    name,
-    properties,
-  };
-}

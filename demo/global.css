@@ -6,10 +6,10 @@
   --color-sd-theme-content: hsl(0, 0%, 0%);
   --spacing-around-card: 16px;
   --spacing-between-card: 16px;
-  --card-vertical-padding: 16px;
-  --card-horizontal-padding: 16px;
-  --card-border-radius: 4px;
-  --card-gap: 16px;
+  --spacing-card-vertical-padding: 16px;
+  --spacing-card-horizontal-padding: 16px;
+  --spacing-card-border-radius: 4px;
+  --spacing-card-gap: 16px;
 }
 
 @layer base {
@@ -20,6 +20,10 @@
   [data-theme="brand"] {
     --color-sd-theme-content: hsl(0, 100%, 50%);
   }
+}
+
+@layer components {
+
 }
 
 @utility stack {

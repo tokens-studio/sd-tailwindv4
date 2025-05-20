@@ -2,7 +2,10 @@
   "card": {
     "$type": "composition",
     "$value": {
-      "verticalPadding": "{around-card}",
+      "verticalPadding": {
+        "$type": "dimension",
+        "$value": "{around-card}"
+      },
       "horizontalPadding": {
         "$type": "dimension",
         "$value": "16"
