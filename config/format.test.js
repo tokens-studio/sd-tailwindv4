@@ -159,5 +159,135 @@ describe("format.js", () => {
       const result = cssVarsPlugin({ dictionary });
       expect(result).not.toContain("--color-sd-stack");
     });
+
+    it("should handle spacing tokens", () => {
+      const dictionary = {
+        allTokens: [
+          {
+            name: "sd-spacing-base",
+            $type: "dimension",
+            $value: "1rem",
+          },
+        ],
+      };
+
+      const result = cssVarsPlugin({ dictionary });
+      expect(normalize(result)).toEqual(
+        normalize(stripIndent`
+        @import 'tailwindcss';
+
+        @theme {
+          --spacing-sd-spacing-base: 1rem;
+        }`)
+      );
+    });
+
+    it("should handle multiple spacing tokens", () => {
+      const dictionary = {
+        allTokens: [
+          {
+            name: "sd-spacing-base",
+            $type: "dimension",
+            $value: "1rem",
+          },
+          {
+            name: "sd-spacing-large",
+            $type: "dimension",
+            $value: "2rem",
+          },
+        ],
+      };
+
+      const result = cssVarsPlugin({ dictionary });
+      expect(normalize(result)).toEqual(
+        normalize(stripIndent`
+        @import 'tailwindcss';
+
+        @theme {
+          --spacing-sd-spacing-base: 1rem;
+          --spacing-sd-spacing-large: 2rem;
+        }`)
+      );
+    });
+
+    it("should handle mixed token types", () => {
+      const dictionary = {
+        allTokens: [
+          {
+            name: "sd-colors-surface",
+            $type: "color",
+            $value: "#00ff00",
+          },
+          {
+            name: "sd-spacing-base",
+            $type: "dimension",
+            $value: "1rem",
+          },
+          {
+            name: "sd-stack",
+            $type: "utility",
+            $value: {
+              display: "flex",
+              "flex-direction": "column",
+            },
+          },
+        ],
+      };
+
+      const result = cssVarsPlugin({ dictionary });
+      expect(normalize(result)).toEqual(
+        normalize(stripIndent`
+        @import 'tailwindcss';
+
+        @theme {
+          --color-sd-colors-surface: #00ff00;
+          --spacing-sd-spacing-base: 1rem;
+        }
+
+        @utility sd-stack {
+          display: flex;
+          flex-direction: column;
+        }`)
+      );
+    });
+
+    it("should handle theme tokens with spacing tokens", () => {
+      const dictionary = {
+        allTokens: [
+          {
+            name: "sd-theme-content-_",
+            $type: "color",
+            $value: "#000000",
+          },
+          {
+            name: "sd-theme-content-dark",
+            $type: "color",
+            $value: "#ffffff",
+          },
+          {
+            name: "sd-spacing-base",
+            $type: "dimension",
+            $value: "1rem",
+          },
+        ],
+      };
+
+      const result = cssVarsPlugin({ dictionary });
+      expect(normalize(result)).toEqual(
+        normalize(stripIndent`
+        @import 'tailwindcss';
+
+        @theme {
+          --color-sd-theme-content: #000000;
+          --spacing-sd-spacing-base: 1rem;
+        }
+
+        @layer base {
+          [data-theme="dark"] {
+            --color-sd-theme-content: #ffffff;
+          }
+        }`)
+      );
+    });
   });
 });

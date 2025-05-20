@@ -1,18 +1,21 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-sd-colors-surface: #00ff00;
-  --color-sd-colors-secondary: #0000ff;
-  --color-sd-theme-content: #000000;
+  --color-sd-colors-surface: hsl(120, 100%, 50%);
+  --color-sd-colors-secondary: hsl(240, 100%, 50%);
+  --color-sd-theme-content: hsl(0, 0%, 0%);
+  --spacing-base-root: 1px;
+  --spacing-around-card: 16px;
+  --spacing-between-card: 16px;
 }
 
 @layer base {
   [data-theme="dark"] {
-    --color-sd-theme-content: #fff;
+    --color-sd-theme-content: hsl(0, 0%, 100%);
   }
 
   [data-theme="brand"] {
-    --color-sd-theme-content: #ff0000;
+    --color-sd-theme-content: hsl(0, 100%, 50%);
   }
 }
 

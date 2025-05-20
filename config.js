@@ -3,7 +3,7 @@ import { cssVarsPlugin } from "./config/format.js";
 
 StyleDictionary.registerTransformGroup({
   name: "tailwind",
-  transforms: ["name/kebab"],
+  transforms: ["name/kebab", "color/hsl", "size/px"],
 });
 
 StyleDictionary.registerFormat({

@@ -1,12 +1,17 @@
 {
-  "sd": {
-    "stack": {
-      "type": "utility",
-      "value": {
-        "display": "flex",
-        "flex-direction": "column",
-        "gap": "1rem"
-      }
+  "stack": {
+    "$type": "utility",
+    "$value": {
+      "display": "flex",
+      "flex-direction": "column",
+      "gap": "1rem"
+    }
+  },
+  "row": {
+    "$type": "utility",
+    "$value": {
+      "display": "flex",
+      "flex-direction": "row"
     }
   }
 }

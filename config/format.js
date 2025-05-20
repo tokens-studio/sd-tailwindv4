@@ -57,10 +57,21 @@ function createUtilityDirective(token) {
   };
 }
 
+function createSpacingVariable(token) {
+  const value = token?.$value || token?.value;
+  const name = token.name.replace(/^sd\./, "").replace(/\./g, "-");
+
+  return {
+    name: `--spacing-${name}`,
+    value,
+  };
+}
+
 function processTokens(dictionary, rootPropertyName = "_") {
   const themeVars = new Map(); // Map to store variables by theme variant
   const baseVars = []; // Array for base theme variables
   const utilityDirectives = []; // Array for utility directives
+  const spacingVariables = []; // Array for spacing variables
 
   dictionary.allTokens.forEach((token) => {
     if (token.$type === "color") {
@@ -83,10 +94,13 @@ function processTokens(dictionary, rootPropertyName = "_") {
     } else if (token.$type === "utility") {
       const utility = createUtilityDirective(token);
       utilityDirectives.push(utility.properties);
+    } else if (token.$type === "dimension") {
+      const spacing = createSpacingVariable(token);
+      spacingVariables.push(`${spacing.name}: ${spacing.value};`);
     }
   });
 
-  return { baseVars, themeVars, utilityDirectives };
+  return { baseVars, themeVars, utilityDirectives, spacingVariables };
 }
 
 export function cssVarsPlugin({ dictionary, options = {} }) {
@@ -104,10 +118,8 @@ export function cssVarsPlugin({ dictionary, options = {} }) {
       ? "theme"
       : themeSelectorConfig.property || "theme";
 
-  const { baseVars, themeVars, utilityDirectives } = processTokens(
-    dictionary,
-    rootPropertyName
-  );
+  const { baseVars, themeVars, utilityDirectives, spacingVariables } =
+    processTokens(dictionary, rootPropertyName);
 
   // Helper to generate the selector for a theme
   function getThemeSelector(variant) {
@@ -122,7 +134,7 @@ export function cssVarsPlugin({ dictionary, options = {} }) {
 
   // Generate theme layers
   const themeLayers = [
-    `@theme {\n  ${baseVars.join("\n  ")}\n}`,
+    `@theme {\n  ${[...baseVars, ...spacingVariables].join("\n  ")}\n}`,
     // Combine all theme variants into a single @layer base
     hasTheme
       ? `@layer base {\n${Array.from(themeVars.entries())
