@@ -1,0 +1,67 @@
+{
+  "layout": {
+    "grid": {
+      "columns": {
+        "1": { "$type": "dimension", "$value": "repeat(1, minmax(0, 1fr))" },
+        "2": { "$type": "dimension", "$value": "repeat(2, minmax(0, 1fr))" },
+        "3": { "$type": "dimension", "$value": "repeat(3, minmax(0, 1fr))" },
+        "4": { "$type": "dimension", "$value": "repeat(4, minmax(0, 1fr))" },
+        "5": { "$type": "dimension", "$value": "repeat(5, minmax(0, 1fr))" },
+        "6": { "$type": "dimension", "$value": "repeat(6, minmax(0, 1fr))" },
+        "12": { "$type": "dimension", "$value": "repeat(12, minmax(0, 1fr))" },
+        "auto-fit": { "$type": "dimension", "$value": "repeat(auto-fit, minmax(250px, 1fr))" },
+        "auto-fill": { "$type": "dimension", "$value": "repeat(auto-fill, minmax(200px, 1fr))" }
+      },
+      "gap": {
+        "xs": { "$type": "dimension", "$value": "{spacing.2}" },
+        "sm": { "$type": "dimension", "$value": "{spacing.4}" },
+        "md": { "$type": "dimension", "$value": "{spacing.6}" },
+        "lg": { "$type": "dimension", "$value": "{spacing.8}" },
+        "xl": { "$type": "dimension", "$value": "{spacing.12}" }
+      }
+    },
+    "flex": {
+      "gap": {
+        "xs": { "$type": "dimension", "$value": "{spacing.2}" },
+        "sm": { "$type": "dimension", "$value": "{spacing.4}" },
+        "md": { "$type": "dimension", "$value": "{spacing.6}" },
+        "lg": { "$type": "dimension", "$value": "{spacing.8}" },
+        "xl": { "$type": "dimension", "$value": "{spacing.12}" }
+      }
+    },
+    "width": {
+      "prose": { "$type": "dimension", "$value": "65ch" },
+      "content": { "$type": "dimension", "$value": "max-content" },
+      "fit": { "$type": "dimension", "$value": "fit-content" },
+      "screen": { "$type": "dimension", "$value": "100vw" }
+    },
+    "height": {
+      "screen": { "$type": "dimension", "$value": "100vh" },
+      "dvh": { "$type": "dimension", "$value": "100dvh" },
+      "svh": { "$type": "dimension", "$value": "100svh" },
+      "lvh": { "$type": "dimension", "$value": "100lvh" }
+    },
+    "z-index": {
+      "hide": { "$type": "number", "$value": "-1" },
+      "auto": { "$type": "number", "$value": "auto" },
+      "base": { "$type": "number", "$value": "0" },
+      "docked": { "$type": "number", "$value": "10" },
+      "dropdown": { "$type": "number", "$value": "1000" },
+      "sticky": { "$type": "number", "$value": "1100" },
+      "banner": { "$type": "number", "$value": "1200" },
+      "overlay": { "$type": "number", "$value": "1300" },
+      "modal": { "$type": "number", "$value": "1400" },
+      "popover": { "$type": "number", "$value": "1500" },
+      "skipLink": { "$type": "number", "$value": "1600" },
+      "toast": { "$type": "number", "$value": "1700" },
+      "tooltip": { "$type": "number", "$value": "1800" }
+    }
+  },
+  "aspect": {
+    "square": { "$type": "dimension", "$value": "1 / 1" },
+    "video": { "$type": "dimension", "$value": "16 / 9" },
+    "photo": { "$type": "dimension", "$value": "4 / 3" },
+    "portrait": { "$type": "dimension", "$value": "3 / 4" },
+    "golden": { "$type": "dimension", "$value": "1.618 / 1" }
+  }
+}

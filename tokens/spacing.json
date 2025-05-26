@@ -1,10 +1,61 @@
 {
-  "around-card": {
-    "$type": "dimension",
-    "$value": "16"
+  "spacing": {
+    "0": { "$type": "dimension", "$value": "0" },
+    "px": { "$type": "dimension", "$value": "1px" },
+    "0.5": { "$type": "dimension", "$value": "0.125rem" },
+    "1": { "$type": "dimension", "$value": "0.25rem" },
+    "1.5": { "$type": "dimension", "$value": "0.375rem" },
+    "2": { "$type": "dimension", "$value": "0.5rem" },
+    "2.5": { "$type": "dimension", "$value": "0.625rem" },
+    "3": { "$type": "dimension", "$value": "0.75rem" },
+    "3.5": { "$type": "dimension", "$value": "0.875rem" },
+    "4": { "$type": "dimension", "$value": "1rem" },
+    "5": { "$type": "dimension", "$value": "1.25rem" },
+    "6": { "$type": "dimension", "$value": "1.5rem" },
+    "7": { "$type": "dimension", "$value": "1.75rem" },
+    "8": { "$type": "dimension", "$value": "2rem" },
+    "9": { "$type": "dimension", "$value": "2.25rem" },
+    "10": { "$type": "dimension", "$value": "2.5rem" },
+    "11": { "$type": "dimension", "$value": "2.75rem" },
+    "12": { "$type": "dimension", "$value": "3rem" },
+    "14": { "$type": "dimension", "$value": "3.5rem" },
+    "16": { "$type": "dimension", "$value": "4rem" },
+    "20": { "$type": "dimension", "$value": "5rem" },
+    "24": { "$type": "dimension", "$value": "6rem" },
+    "28": { "$type": "dimension", "$value": "7rem" },
+    "32": { "$type": "dimension", "$value": "8rem" },
+    "36": { "$type": "dimension", "$value": "9rem" },
+    "40": { "$type": "dimension", "$value": "10rem" },
+    "44": { "$type": "dimension", "$value": "11rem" },
+    "48": { "$type": "dimension", "$value": "12rem" },
+    "52": { "$type": "dimension", "$value": "13rem" },
+    "56": { "$type": "dimension", "$value": "14rem" },
+    "60": { "$type": "dimension", "$value": "15rem" },
+    "64": { "$type": "dimension", "$value": "16rem" },
+    "72": { "$type": "dimension", "$value": "18rem" },
+    "80": { "$type": "dimension", "$value": "20rem" },
+    "96": { "$type": "dimension", "$value": "24rem" }
   },
-  "between-card": {
-    "$type": "dimension",
-    "$value": "16"
+  "container": {
+    "3xs": { "$type": "dimension", "$value": "16rem" },
+    "2xs": { "$type": "dimension", "$value": "18rem" },
+    "xs": { "$type": "dimension", "$value": "20rem" },
+    "sm": { "$type": "dimension", "$value": "24rem" },
+    "md": { "$type": "dimension", "$value": "28rem" },
+    "lg": { "$type": "dimension", "$value": "32rem" },
+    "xl": { "$type": "dimension", "$value": "36rem" },
+    "2xl": { "$type": "dimension", "$value": "42rem" },
+    "3xl": { "$type": "dimension", "$value": "48rem" },
+    "4xl": { "$type": "dimension", "$value": "56rem" },
+    "5xl": { "$type": "dimension", "$value": "64rem" },
+    "6xl": { "$type": "dimension", "$value": "72rem" },
+    "7xl": { "$type": "dimension", "$value": "80rem" }
+  },
+  "breakpoint": {
+    "sm": { "$type": "dimension", "$value": "40rem" },
+    "md": { "$type": "dimension", "$value": "48rem" },
+    "lg": { "$type": "dimension", "$value": "64rem" },
+    "xl": { "$type": "dimension", "$value": "80rem" },
+    "2xl": { "$type": "dimension", "$value": "96rem" }
   }
 }

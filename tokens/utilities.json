@@ -1,20 +1,86 @@
 {
-  "stack": {
-    "$type": "utility",
-    "$value": {
-      "display": "flex",
-      "flex-direction": "column",
-      "gap": {
-        "$type": "dimension",
-        "$value": "16"
+  "utilities": {
+    "flex-center": {
+      "$type": "utility",
+      "$value": {
+        "display": "flex",
+        "alignItems": "center",
+        "justifyContent": "center"
       }
-    }
-  },
-  "row": {
-    "$type": "utility",
-    "$value": {
-      "display": "flex",
-      "flex-direction": "row"
+    },
+    "flex-between": {
+      "$type": "utility",
+      "$value": {
+        "display": "flex",
+        "alignItems": "center",
+        "justifyContent": "space-between"
+      }
+    },
+    "stack": {
+      "$type": "utility",
+      "$value": {
+        "display": "flex",
+        "flexDirection": "column"
+      }
+    },
+    "stack-center": {
+      "$type": "utility",
+      "$value": {
+        "display": "flex",
+        "flexDirection": "column",
+        "alignItems": "center"
+      }
+    },
+    "glass": {
+      "$type": "utility",
+      "$value": {
+        "backgroundColor": "rgba(255, 255, 255, 0.1)",
+        "backdropFilter": "blur(10px)",
+        "border": "1px solid rgba(255, 255, 255, 0.2)"
+      }
+    },
+    "focus-ring": {
+      "$type": "utility",
+      "$value": {
+        "outline": "2px solid transparent",
+        "outlineOffset": "2px",
+        "boxShadow": "0 0 0 2px {color.brand.primary}"
+      }
+    },
+    "truncate-2": {
+      "$type": "utility",
+      "$value": {
+        "overflow": "hidden",
+        "display": "-webkit-box",
+        "WebkitBoxOrient": "vertical",
+        "WebkitLineClamp": "2"
+      }
+    },
+    "truncate-3": {
+      "$type": "utility",
+      "$value": {
+        "overflow": "hidden",
+        "display": "-webkit-box",
+        "WebkitBoxOrient": "vertical",
+        "WebkitLineClamp": "3"
+      }
+    },
+    "scroll-smooth": {
+      "$type": "utility",
+      "$value": {
+        "scrollBehavior": "smooth",
+        "scrollbarWidth": "thin",
+        "scrollbarColor": "{color.slate.300} transparent"
+      }
+    },
+    "gradient-text": {
+      "$type": "utility",
+      "$value": {
+        "background": "linear-gradient(135deg, {color.brand.primary}, {color.brand.secondary})",
+        "WebkitBackgroundClip": "text",
+        "WebkitTextFillColor": "transparent",
+        "backgroundClip": "text"
+      }
     }
   }
 }

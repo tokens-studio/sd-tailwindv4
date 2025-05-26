@@ -1,0 +1,59 @@
+{
+  "text": {
+    "xs": { "$type": "fontSize", "$value": "0.75rem" },
+    "sm": { "$type": "fontSize", "$value": "0.875rem" },
+    "base": { "$type": "fontSize", "$value": "1rem" },
+    "lg": { "$type": "fontSize", "$value": "1.125rem" },
+    "xl": { "$type": "fontSize", "$value": "1.25rem" },
+    "2xl": { "$type": "fontSize", "$value": "1.5rem" },
+    "3xl": { "$type": "fontSize", "$value": "1.875rem" },
+    "4xl": { "$type": "fontSize", "$value": "2.25rem" },
+    "5xl": { "$type": "fontSize", "$value": "3rem" },
+    "6xl": { "$type": "fontSize", "$value": "3.75rem" },
+    "7xl": { "$type": "fontSize", "$value": "4.5rem" },
+    "8xl": { "$type": "fontSize", "$value": "6rem" },
+    "9xl": { "$type": "fontSize", "$value": "8rem" }
+  },
+  "font": {
+    "weight": {
+      "thin": { "$type": "fontWeight", "$value": "100" },
+      "extralight": { "$type": "fontWeight", "$value": "200" },
+      "light": { "$type": "fontWeight", "$value": "300" },
+      "normal": { "$type": "fontWeight", "$value": "400" },
+      "medium": { "$type": "fontWeight", "$value": "500" },
+      "semibold": { "$type": "fontWeight", "$value": "600" },
+      "bold": { "$type": "fontWeight", "$value": "700" },
+      "extrabold": { "$type": "fontWeight", "$value": "800" },
+      "black": { "$type": "fontWeight", "$value": "900" }
+    },
+    "family": {
+      "sans": {
+        "$type": "fontFamily",
+        "$value": ["ui-sans-serif", "system-ui", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"]
+      },
+      "serif": {
+        "$type": "fontFamily",
+        "$value": ["ui-serif", "Georgia", "Cambria", "Times New Roman", "Times", "serif"]
+      },
+      "mono": {
+        "$type": "fontFamily",
+        "$value": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+      }
+    }
+  },
+  "leading": {
+    "tight": { "$type": "lineHeight", "$value": "1.25" },
+    "snug": { "$type": "lineHeight", "$value": "1.375" },
+    "normal": { "$type": "lineHeight", "$value": "1.5" },
+    "relaxed": { "$type": "lineHeight", "$value": "1.625" },
+    "loose": { "$type": "lineHeight", "$value": "2" }
+  },
+  "tracking": {
+    "tighter": { "$type": "letterSpacing", "$value": "-0.05em" },
+    "tight": { "$type": "letterSpacing", "$value": "-0.025em" },
+    "normal": { "$type": "letterSpacing", "$value": "0em" },
+    "wide": { "$type": "letterSpacing", "$value": "0.025em" },
+    "wider": { "$type": "letterSpacing", "$value": "0.05em" },
+    "widest": { "$type": "letterSpacing", "$value": "0.1em" }
+  }
+}

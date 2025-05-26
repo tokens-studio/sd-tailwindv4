@@ -1,43 +1,352 @@
-@import 'tailwindcss';
-
 @theme {
-  --color-sd-colors-surface: hsl(120, 100%, 50%);
-  --color-sd-colors-secondary: hsl(240, 100%, 50%);
-  --color-sd-theme-content: hsl(0, 0%, 0%);
-  --spacing-around-card: 16px;
-  --spacing-between-card: 16px;
-  --spacing-card-vertical-padding: 16px;
-  --spacing-card-horizontal-padding: 16px;
-  --spacing-card-border-radius: 4px;
-  --spacing-card-gap: 16px;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+  --ease-linear: cubic-bezier(0, 0, 1, 1);
+  --ease-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-ease-in: cubic-bezier(0.42, 0, 1, 1);
+  --ease-ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --ease-ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --transition-all: 250ms cubic-bezier(0.25, 0.1, 0.25, 1) undefined;
+  --transition-colors: 150ms cubic-bezier(0, 0, 0.58, 1) undefined;
+  --transition-transform: 250ms cubic-bezier(0.175, 0.885, 0.32, 1.275) undefined;
+  --transition-opacity: 150ms cubic-bezier(0.42, 0, 0.58, 1) undefined;
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  --animate-fade-in: fade-in 1s ease-in-out;
+  @keyframes slide-up {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  --animate-slide-up: slide-up 1s ease-in-out;
+  @keyframes scale-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  --animate-scale-in: scale-in 1s ease-in-out;
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  --animate-pulse: pulse 1s ease-in-out;
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  --animate-spin: spin 1s ease-in-out;
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(-25%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
+  --animate-bounce: bounce 1s ease-in-out;
+  --color-slate-50: oklch(0.985 0.003 247.858);
+  --color-slate-100: oklch(0.961 0.013 252.096);
+  --color-slate-200: oklch(0.918 0.027 255.498);
+  --color-slate-300: oklch(0.834 0.034 252.890);
+  --color-slate-400: oklch(0.690 0.041 256.788);
+  --color-slate-500: oklch(0.533 0.046 257.417);
+  --color-slate-600: oklch(0.422 0.041 257.138);
+  --color-slate-700: oklch(0.345 0.036 256.788);
+  --color-slate-800: oklch(0.244 0.026 256.788);
+  --color-slate-900: oklch(0.156 0.018 256.788);
+  --color-slate-950: oklch(0.078 0.010 256.788);
+  --color-blue-50: oklch(0.968 0.013 238.72);
+  --color-blue-100: oklch(0.929 0.026 240.01);
+  --color-blue-200: oklch(0.859 0.059 241.66);
+  --color-blue-300: oklch(0.758 0.099 243.83);
+  --color-blue-400: oklch(0.618 0.152 245.75);
+  --color-blue-500: oklch(0.570 0.191 248.32);
+  --color-blue-600: oklch(0.506 0.230 251.29);
+  --color-blue-700: oklch(0.451 0.246 251.87);
+  --color-blue-800: oklch(0.365 0.196 252.56);
+  --color-blue-900: oklch(0.313 0.155 254.139);
+  --color-blue-950: oklch(0.201 0.103 256.848);
+  --color-emerald-50: oklch(0.977 0.013 162.48);
+  --color-emerald-100: oklch(0.943 0.030 165.77);
+  --color-emerald-200: oklch(0.898 0.062 162.73);
+  --color-emerald-300: oklch(0.824 0.109 162.73);
+  --color-emerald-400: oklch(0.709 0.156 161.72);
+  --color-emerald-500: oklch(0.596 0.162 161.72);
+  --color-emerald-600: oklch(0.497 0.142 162.73);
+  --color-emerald-700: oklch(0.409 0.115 162.73);
+  --color-emerald-800: oklch(0.329 0.092 162.73);
+  --color-emerald-900: oklch(0.278 0.078 162.73);
+  --color-emerald-950: oklch(0.154 0.042 166.11);
+  --color-red-50: oklch(0.971 0.013 17.38);
+  --color-red-100: oklch(0.936 0.032 17.717);
+  --color-red-200: oklch(0.885 0.058 19.109);
+  --color-red-300: oklch(0.808 0.098 21.555);
+  --color-red-400: oklch(0.704 0.150 22.216);
+  --color-red-500: oklch(0.637 0.198 25.331);
+  --color-red-600: oklch(0.567 0.196 27.325);
+  --color-red-700: oklch(0.478 0.171 26.27);
+  --color-red-800: oklch(0.402 0.138 25.882);
+  --color-red-900: oklch(0.348 0.114 27.523);
+  --color-red-950: oklch(0.192 0.069 27.523);
+  --color-theme-content: oklch(0.078 0.010 256.788);
+  --color-theme-background: #ffffff;
+  --color-theme-surface: oklch(0.985 0.003 247.858);
+  --color-theme-border: oklch(0.918 0.027 255.498);
+  --color-theme-accent: oklch(0.570 0.191 248.32);
+  --color-brand-primary: oklch(0.570 0.191 248.32);
+  --color-brand-secondary: oklch(0.596 0.162 161.72);
+  --color-brand-danger: oklch(0.637 0.198 25.331);
+  --color-brand-warning: oklch(0.802 0.138 83.87);
+  --color-brand-success: oklch(0.596 0.162 161.72);
+  --color-yellow-100: oklch(0.961 0.032 99.57);
+  --color-yellow-800: oklch(0.526 0.136 86.72);
+  --shadow-2xs: 0 1px 0 0 rgb(0 0 0 / 0.05);
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inset-shadow-2xs: inset 0 1px 0 0 rgb(0 0 0 / 0.05);
+  --shadow-inset-shadow-xs: inset 0 1px 1px 0 rgb(0 0 0 / 0.05);
+  --shadow-inset-shadow-sm: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  --shadow-drop-shadow-xs: 0 1px 1px 0 rgb(0 0 0 / 0.05);
+  --shadow-drop-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+  --shadow-drop-shadow-md: 0 3px 3px 0 rgb(0 0 0 / 0.12);
+  --shadow-drop-shadow-lg: 0 4px 4px 0 rgb(0 0 0 / 0.15);
+  --shadow-drop-shadow-xl: 0 9px 7px 0 rgb(0 0 0 / 0.1);
+  --shadow-drop-shadow-2xl: 0 25px 25px 0 rgb(0 0 0 / 0.15);
+  --color-surface: #00ff00;
+  --color-secondary: #0000ff;
+  --color-theme-content: #000000;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-7xl: 4.5rem;
+  --text-8xl: 6rem;
+  --text-9xl: 8rem;
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+  --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  --spacing-layout-grid-columns-1: repeat(1, minmax(0, 1fr));
+  --spacing-layout-grid-columns-2: repeat(2, minmax(0, 1fr));
+  --spacing-layout-grid-columns-3: repeat(3, minmax(0, 1fr));
+  --spacing-layout-grid-columns-4: repeat(4, minmax(0, 1fr));
+  --spacing-layout-grid-columns-5: repeat(5, minmax(0, 1fr));
+  --spacing-layout-grid-columns-6: repeat(6, minmax(0, 1fr));
+  --spacing-layout-grid-columns-12: repeat(12, minmax(0, 1fr));
+  --spacing-layout-grid-columns-auto-fit: repeat(auto-fit, minmax(250px, 1fr));
+  --spacing-layout-grid-columns-auto-fill: repeat(auto-fill, minmax(200px, 1fr));
+  --spacing-layout-grid-gap-xs: 0.5rem;
+  --spacing-layout-grid-gap-sm: 1rem;
+  --spacing-layout-grid-gap-md: 1.5rem;
+  --spacing-layout-grid-gap-lg: 2rem;
+  --spacing-layout-grid-gap-xl: 3rem;
+  --spacing-layout-flex-gap-xs: 0.5rem;
+  --spacing-layout-flex-gap-sm: 1rem;
+  --spacing-layout-flex-gap-md: 1.5rem;
+  --spacing-layout-flex-gap-lg: 2rem;
+  --spacing-layout-flex-gap-xl: 3rem;
+  --spacing-layout-width-prose: 65ch;
+  --spacing-layout-width-content: max-content;
+  --spacing-layout-width-fit: fit-content;
+  --spacing-layout-width-screen: 100vw;
+  --spacing-layout-height-screen: 100vh;
+  --spacing-layout-height-dvh: 100dvh;
+  --spacing-layout-height-svh: 100svh;
+  --spacing-layout-height-lvh: 100lvh;
+  --aspect-square: 1 / 1;
+  --aspect-video: 16 / 9;
+  --aspect-photo: 4 / 3;
+  --aspect-portrait: 3 / 4;
+  --aspect-golden: 1.618 / 1;
+  --radius-none: 0;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-full: 9999px;
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-7: 1.75rem;
+  --spacing-8: 2rem;
+  --spacing-9: 2.25rem;
+  --spacing-10: 2.5rem;
+  --spacing-11: 2.75rem;
+  --spacing-12: 3rem;
+  --spacing-14: 3.5rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-28: 7rem;
+  --spacing-32: 8rem;
+  --spacing-36: 9rem;
+  --spacing-40: 10rem;
+  --spacing-44: 11rem;
+  --spacing-48: 12rem;
+  --spacing-52: 13rem;
+  --spacing-56: 14rem;
+  --spacing-60: 15rem;
+  --spacing-64: 16rem;
+  --spacing-72: 18rem;
+  --spacing-80: 20rem;
+  --spacing-96: 24rem;
+  --spacing-px: 1px;
+  --spacing-0-5: 0.125rem;
+  --spacing-1-5: 0.375rem;
+  --spacing-2-5: 0.625rem;
+  --spacing-3-5: 0.875rem;
+  --container-3xs: 16rem;
+  --container-2xs: 18rem;
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --container-6xl: 72rem;
+  --container-7xl: 80rem;
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
 }
 
 @layer base {
   [data-theme="dark"] {
-    --color-sd-theme-content: hsl(0, 0%, 100%);
+    --color-theme-content: oklch(0.985 0.003 247.858);
+    --color-theme-background: oklch(0.078 0.010 256.788);
+    --color-theme-surface: oklch(0.156 0.018 256.788);
+    --color-theme-border: oklch(0.244 0.026 256.788);
+    --color-theme-accent: oklch(0.618 0.152 245.75);
+    --color-theme-content: #ffffff;
   }
 
   [data-theme="brand"] {
-    --color-sd-theme-content: hsl(0, 100%, 50%);
+    --color-theme-content: #ff0000;
   }
 }
 
-@layer components {
-  .card {
-    padding-block: var(--spacing-card-vertical-padding);
-    padding-inline: var(--spacing-card-horizontal-padding);
-    border-radius: var(--spacing-card-border-radius);
-    gap: var(--spacing-card-gap);
-  }
+@utility utilitiesFlexCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@utility stack {
+@utility utilitiesFlexBetween {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@utility utilitiesStack {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
-@utility row {
+@utility utilitiesStackCenter {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  align-items: center;
+}
+
+@utility utilitiesGlass {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@utility utilitiesFocusRing {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px oklch(0.570 0.191 248.32);
+}
+
+@utility utilitiesTruncate2 {
+  overflow: hidden;
+  display: -webkit-box;
+  webkit-box-orient: vertical;
+  webkit-line-clamp: 2;
+}
+
+@utility utilitiesTruncate3 {
+  overflow: hidden;
+  display: -webkit-box;
+  webkit-box-orient: vertical;
+  webkit-line-clamp: 3;
+}
+
+@utility utilitiesScrollSmooth {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.834 0.034 252.890) transparent;
+}
+
+@utility utilitiesGradientText {
+  background: linear-gradient(135deg, oklch(0.570 0.191 248.32), oklch(0.596 0.162 161.72));
+  webkit-background-clip: text;
+  webkit-text-fill-color: transparent;
+  background-clip: text;
 }

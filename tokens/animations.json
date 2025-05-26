@@ -1,0 +1,115 @@
+{
+  "animation": {
+    "duration": {
+      "fast": { "$type": "duration", "$value": "150ms" },
+      "normal": { "$type": "duration", "$value": "250ms" },
+      "slow": { "$type": "duration", "$value": "350ms" },
+      "slower": { "$type": "duration", "$value": "500ms" }
+    },
+    "easing": {
+      "linear": { "$type": "cubicBezier", "$value": [0, 0, 1, 1] },
+      "ease": { "$type": "cubicBezier", "$value": [0.25, 0.1, 0.25, 1] },
+      "ease-in": { "$type": "cubicBezier", "$value": [0.42, 0, 1, 1] },
+      "ease-out": { "$type": "cubicBezier", "$value": [0, 0, 0.58, 1] },
+      "ease-in-out": { "$type": "cubicBezier", "$value": [0.42, 0, 0.58, 1] },
+      "bounce": { "$type": "cubicBezier", "$value": [0.68, -0.55, 0.265, 1.55] },
+      "spring": { "$type": "cubicBezier", "$value": [0.175, 0.885, 0.32, 1.275] }
+    }
+  },
+  "transition": {
+    "all": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{animation.duration.normal}",
+        "timingFunction": "{animation.easing.ease}",
+        "property": "all"
+      }
+    },
+    "colors": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{animation.duration.fast}",
+        "timingFunction": "{animation.easing.ease-out}",
+        "property": "color, background-color, border-color"
+      }
+    },
+    "transform": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{animation.duration.normal}",
+        "timingFunction": "{animation.easing.spring}",
+        "property": "transform"
+      }
+    },
+    "opacity": {
+      "$type": "transition",
+      "$value": {
+        "duration": "{animation.duration.fast}",
+        "timingFunction": "{animation.easing.ease-in-out}",
+        "property": "opacity"
+      }
+    }
+  },
+  "keyframes": {
+    "fade-in": {
+      "$type": "keyframes",
+      "$value": {
+        "0%": { "opacity": "0" },
+        "100%": { "opacity": "1" }
+      }
+    },
+    "slide-up": {
+      "$type": "keyframes",
+      "$value": {
+        "0%": {
+          "opacity": "0",
+          "transform": "translateY(10px)"
+        },
+        "100%": {
+          "opacity": "1",
+          "transform": "translateY(0)"
+        }
+      }
+    },
+    "scale-in": {
+      "$type": "keyframes",
+      "$value": {
+        "0%": {
+          "opacity": "0",
+          "transform": "scale(0.95)"
+        },
+        "100%": {
+          "opacity": "1",
+          "transform": "scale(1)"
+        }
+      }
+    },
+    "pulse": {
+      "$type": "keyframes",
+      "$value": {
+        "0%, 100%": { "opacity": "1" },
+        "50%": { "opacity": "0.5" }
+      }
+    },
+    "spin": {
+      "$type": "keyframes",
+      "$value": {
+        "0%": { "transform": "rotate(0deg)" },
+        "100%": { "transform": "rotate(360deg)" }
+      }
+    },
+    "bounce": {
+      "$type": "keyframes",
+      "$value": {
+        "0%, 100%": {
+          "transform": "translateY(-25%)",
+          "animationTimingFunction": "cubic-bezier(0.8, 0, 1, 1)"
+        },
+        "50%": {
+          "transform": "translateY(0)",
+          "animationTimingFunction": "cubic-bezier(0, 0, 0.2, 1)"
+        }
+      }
+    }
+  }
+}
