@@ -1,19 +1,27 @@
 import { BaseTokenProcessor } from './base.js';
 import { toKebabCase } from './utils.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
+
+interface TransitionObject {
+  duration?: string;
+  timingFunction?: string;
+  property?: string;
+  delay?: string;
+}
 
 /**
  * Processor for animation-related tokens (duration, cubicBezier, transition, keyframes)
  */
 export class AnimationTokenProcessor extends BaseTokenProcessor {
-  constructor(options = {}) {
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     super(options);
   }
 
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     return ['duration', 'cubicBezier', 'transition', 'keyframes'].includes(token.$type);
   }
 
-  process(token, dictionary) {
+  process(token: Token, dictionary: Dictionary): ProcessedToken | ProcessedToken[] | null {
     // For transition tokens, we need to work with the original $value object
     // before Style Dictionary tries to resolve it as a string
     const value = token.$type === 'transition' ? token.original.$value || token.$value : this.getTokenValue(token);
@@ -48,7 +56,7 @@ export class AnimationTokenProcessor extends BaseTokenProcessor {
     }
   }
 
-  processDuration(path, value, variant, isTheme) {
+  processDuration(path: string[], value: any, variant: string | null, isTheme: boolean): ProcessedToken {
     // Remove redundant "duration" from path
     if (path[0] === 'duration') {
       path = path.slice(1);
@@ -65,14 +73,14 @@ export class AnimationTokenProcessor extends BaseTokenProcessor {
     };
   }
 
-  processCubicBezier(path, value, variant, isTheme) {
+  processCubicBezier(path: string[], value: any, variant: string | null, isTheme: boolean): ProcessedToken {
     // Remove redundant "easing" from path
     if (path[0] === 'easing') {
       path = path.slice(1);
     }
 
     // Convert array to CSS cubic-bezier function
-    let cssValue;
+    let cssValue: string;
     if (Array.isArray(value)) {
       cssValue = `cubic-bezier(${value.join(', ')})`;
     } else {
@@ -90,7 +98,7 @@ export class AnimationTokenProcessor extends BaseTokenProcessor {
     };
   }
 
-      processTransition(path, value, token, dictionary, variant, isTheme) {
+      processTransition(path: string[], value: any, token: Token, dictionary: Dictionary, variant: string | null, isTheme: boolean): ProcessedToken {
     // Remove redundant "transition" from path
     if (path[0] === 'transition') {
       path = path.slice(1);
@@ -117,26 +125,26 @@ export class AnimationTokenProcessor extends BaseTokenProcessor {
       // delay is optional and rarely used
 
       // Build transition shorthand in correct order: property duration timing-function delay
-      const parts = [];
+      const parts: string[] = [];
 
       // Add property first (e.g., "all", "color", etc.)
       if (property !== undefined && property !== null && property !== '') {
-        parts.push(property);
+        parts.push(String(property));
       }
 
       // Add duration (e.g., "250ms")
       if (duration !== undefined && duration !== null && duration !== '') {
-        parts.push(duration);
+        parts.push(String(duration));
       }
 
       // Add timing function (e.g., "ease", "cubic-bezier(...)")
       if (timingFunction !== undefined && timingFunction !== null && timingFunction !== '') {
-        parts.push(timingFunction);
+        parts.push(String(timingFunction));
       }
 
       // Only add delay if it exists and is not undefined
       if (delay !== undefined && delay !== null && delay !== '') {
-        parts.push(delay);
+        parts.push(String(delay));
       }
 
       const transitionValue = parts.join(' ');
@@ -160,7 +168,7 @@ export class AnimationTokenProcessor extends BaseTokenProcessor {
     };
   }
 
-    processKeyframes(path, value, variant, isTheme) {
+    processKeyframes(path: string[], value: any, variant: string | null, isTheme: boolean): ProcessedToken[] {
     // Remove redundant "keyframes" from path
     if (path[0] === 'keyframes') {
       path = path.slice(1);
@@ -175,10 +183,12 @@ export class AnimationTokenProcessor extends BaseTokenProcessor {
     for (const [percentage, styles] of Object.entries(value)) {
       keyframesCSS += `  ${percentage} {\n`;
 
-      for (const [property, styleValue] of Object.entries(styles)) {
-        // Convert camelCase to kebab-case for CSS properties
-        const cssProperty = toKebabCase(property);
-        keyframesCSS += `    ${cssProperty}: ${styleValue};\n`;
+      if (typeof styles === 'object' && styles !== null) {
+        for (const [property, styleValue] of Object.entries(styles as Record<string, any>)) {
+          // Convert camelCase to kebab-case for CSS properties
+          const cssProperty = toKebabCase(property);
+          keyframesCSS += `    ${cssProperty}: ${styleValue};\n`;
+        }
       }
 
       keyframesCSS += `  }\n`;
@@ -207,17 +217,14 @@ export class AnimationTokenProcessor extends BaseTokenProcessor {
 
   /**
    * Find a token by its path in the dictionary
-   * @param {object} dictionary
-   * @param {string[]} path
-   * @returns {object|null}
    */
-  findTokenByPath(dictionary, path) {
+  findTokenByPath(dictionary: Dictionary, path: string[]): Token | null {
     if (!dictionary || !dictionary.allTokens) return null;
     
     return dictionary.allTokens.find(token => {
       const tokenPath = token.path.join('.');
       const searchPath = path.join('.');
       return tokenPath === searchPath;
-    });
+    }) || null;
   }
 }

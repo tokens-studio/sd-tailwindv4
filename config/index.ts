@@ -1,12 +1,17 @@
 import { PluginConfiguration } from './configuration.js';
 import { TokenProcessingEngine } from './token-engine.js';
 import { TailwindCSSGenerator } from './css-builder.js';
+import type { PluginConfig, Dictionary } from './types.js';
 
 /**
  * Main Tailwind v4 Style Dictionary plugin
  */
 export class TailwindV4Plugin {
-  constructor(userConfig = {}) {
+  private config: PluginConfiguration;
+  private engine: TokenProcessingEngine;
+  private generator: TailwindCSSGenerator;
+
+  constructor(userConfig: Partial<PluginConfig> = {}) {
     this.config = new PluginConfiguration(userConfig);
     this.engine = new TokenProcessingEngine(this.config);
     this.generator = new TailwindCSSGenerator(this.config);
@@ -14,10 +19,8 @@ export class TailwindV4Plugin {
 
   /**
    * Process dictionary and generate CSS output
-   * @param {object} dictionary
-   * @returns {string}
    */
-  format(dictionary) {
+  format(dictionary: Dictionary): string {
     try {
       const processedTokens = this.engine.processTokens(dictionary);
       return this.generator.generate(processedTokens);
@@ -30,13 +33,11 @@ export class TailwindV4Plugin {
 
 /**
  * Create a Tailwind v4 Style Dictionary plugin
- * @param {object} options - Configuration options (optional, uses defaults)
- * @returns {function} Style Dictionary format function
  */
-export function createTailwindV4Plugin(options = {}) {
+export function createTailwindV4Plugin(options: Partial<PluginConfig> = {}) {
   const plugin = new TailwindV4Plugin(options);
 
-  return function({ dictionary }) {
+  return function({ dictionary }: { dictionary: Dictionary }): string {
     return plugin.format(dictionary);
   };
 }

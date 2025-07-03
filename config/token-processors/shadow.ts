@@ -1,20 +1,32 @@
 import { BaseTokenProcessor } from './base.js';
 import { toKebabCase } from './utils.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
+
+interface ShadowObject {
+  offsetX?: string;
+  offsetY?: string;
+  blur?: string;
+  spread?: string;
+  color?: string;
+  inset?: boolean;
+}
 
 /**
  * Processor for shadow tokens
  */
 export class ShadowTokenProcessor extends BaseTokenProcessor {
-  constructor(options = {}) {
+  private prefix: string;
+
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     super(options);
     this.prefix = options.shadowPrefix || 'shadow';
   }
 
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     return token.$type === 'boxShadow' || token.$type === 'shadow';
   }
 
-  process(token, dictionary) {
+  process(token: Token, dictionary: Dictionary): ProcessedToken | null {
     const value = this.getTokenValue(token);
 
     // Use global theme processing logic
@@ -49,10 +61,8 @@ export class ShadowTokenProcessor extends BaseTokenProcessor {
 
   /**
    * Format a shadow object into CSS shadow syntax
-   * @param {object} shadow
-   * @returns {string}
    */
-  formatShadow(shadow) {
+  formatShadow(shadow: ShadowObject): string {
     const {
       offsetX = '0',
       offsetY = '0',

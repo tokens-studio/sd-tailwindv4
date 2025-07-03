@@ -7,12 +7,17 @@ import { AnimationTokenProcessor } from './token-processors/animation.js';
 import { ComponentTokenProcessor } from './token-processors/component.js';
 import { NumberTokenProcessor } from './token-processors/number.js';
 import { CompositionTokenProcessor } from './token-processors/composition.js';
+import { BaseTokenProcessor } from './token-processors/base.js';
+import type { Dictionary, ProcessedTokens, Token } from './types.js';
 
 /**
  * Token processing engine that orchestrates all token processors
  */
 export class TokenProcessingEngine {
-  constructor(config) {
+  private config: any;
+  private processors: Map<string, BaseTokenProcessor>;
+
+  constructor(config: any) {
     this.config = config;
     this.processors = new Map();
     this.registerDefaultProcessors();
@@ -35,27 +40,22 @@ export class TokenProcessingEngine {
 
   /**
    * Register a token processor
-   * @param {string} name
-   * @param {BaseTokenProcessor} processor
    */
-  registerProcessor(name, processor) {
+  registerProcessor(name: string, processor: BaseTokenProcessor): void {
     this.processors.set(name, processor);
   }
 
   /**
    * Get all registered processors
-   * @returns {Array}
    */
-  getProcessors() {
+  getProcessors(): BaseTokenProcessor[] {
     return Array.from(this.processors.values());
   }
 
   /**
    * Process all tokens using registered processors
-   * @param {object} dictionary
-   * @returns {object}
    */
-  processTokens(dictionary) {
+  processTokens(dictionary: Dictionary): ProcessedTokens {
     const result = {
       baseVars: [],
       themeVars: new Map(),
@@ -102,10 +102,8 @@ export class TokenProcessingEngine {
 
   /**
    * Categorize processed token into appropriate result buckets
-   * @param {object} processed
-   * @param {object} result
    */
-  categorizeProcessedToken(processed, result) {
+  categorizeProcessedToken(processed: any, result: ProcessedTokens): void {
     switch (processed.type) {
       case 'color':
         const varString = `${processed.name}: ${processed.value};`;

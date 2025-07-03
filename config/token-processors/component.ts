@@ -1,33 +1,26 @@
 import { BaseTokenProcessor } from './base.js';
 import { objectToCssProperties, createUtilityClassName } from './utils.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
 
 /**
  * Processor for component tokens
  * Handles tokens of type 'component' and generates CSS classes
  */
 export class ComponentTokenProcessor extends BaseTokenProcessor {
-  constructor(options = {}) {
+  private componentPrefix: string;
+  private generateClasses: boolean;
+
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     super(options);
     this.componentPrefix = options.componentPrefix || 'c-';
     this.generateClasses = options.componentHandling?.enabled !== false;
   }
 
-  /**
-   * Check if this processor can handle the given token
-   * @param {object} token
-   * @returns {boolean}
-   */
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     return token.$type === 'component';
   }
 
-  /**
-   * Process component token and generate CSS class
-   * @param {object} token
-   * @param {object} dictionary
-   * @returns {object}
-   */
-  process(token, dictionary) {
+  process(token: Token, dictionary: Dictionary): ProcessedToken | null {
     // Use the original token value to preserve token references
     const tokenValue = token.original?.$value || token.$value;
     if (!tokenValue || typeof tokenValue !== 'object') {
@@ -57,25 +50,21 @@ export class ComponentTokenProcessor extends BaseTokenProcessor {
 
   /**
    * Convert object to CSS properties with token references converted to CSS custom properties
-   * @param {object} obj
-   * @param {object} dictionary
-   * @param {number} indentLevel
-   * @returns {string}
    */
-  objectToCssPropertiesWithVars(obj, dictionary, indentLevel = 0) {
+  objectToCssPropertiesWithVars(obj: Record<string, any>, dictionary: Dictionary, indentLevel: number = 0): string {
     const indent = '  '.repeat(indentLevel);
-    const properties = [];
+    const properties: string[] = [];
 
     for (const [key, value] of Object.entries(obj)) {
       if (key.startsWith('&')) {
         // Handle pseudo-selectors and nested rules
         const nestedProperties = this.objectToCssPropertiesWithVars(value, dictionary, indentLevel + 1);
-        properties.push(`${indent}${key} {\n${nestedProperties}\n${indent}}`);
+        properties.push(`${indent}${String(key)} {\n${nestedProperties}\n${indent}}`);
       } else {
         // Convert camelCase to kebab-case for CSS properties
         const cssProperty = this.camelToKebab(key);
         const cssValue = this.convertTokenReferenceToVar(value, dictionary);
-        properties.push(`${indent}${cssProperty}: ${cssValue};`);
+        properties.push(`${indent}${cssProperty}: ${String(cssValue)};`);
       }
     }
 
@@ -84,11 +73,8 @@ export class ComponentTokenProcessor extends BaseTokenProcessor {
 
   /**
    * Convert token reference to CSS custom property reference
-   * @param {string} value
-   * @param {object} dictionary
-   * @returns {string}
    */
-  convertTokenReferenceToVar(value, dictionary) {
+  convertTokenReferenceToVar(value: any, dictionary: Dictionary): string {
     if (typeof value !== 'string') {
       return value;
     }
@@ -121,10 +107,8 @@ export class ComponentTokenProcessor extends BaseTokenProcessor {
 
   /**
    * Generate CSS custom property reference from a token
-   * @param {object} token
-   * @returns {string}
    */
-  generateCssVarReference(token) {
+  generateCssVarReference(token: Token): string {
     const { finalPath } = this.processTokenPath(token);
     let kebabPath = this.pathToKebabCase(finalPath);
     
@@ -198,36 +182,29 @@ export class ComponentTokenProcessor extends BaseTokenProcessor {
 
   /**
    * Convert path to CSS variable (fallback)
-   * @param {string[]} pathParts
-   * @returns {string}
    */
-  pathToCssVar(pathParts) {
+  pathToCssVar(pathParts: string[]): string {
     const kebabPath = pathParts.map(part => this.toKebabCase(part));
     return `var(--${kebabPath.join('-')})`;
   }
 
   /**
    * Find a token by its path in the dictionary
-   * @param {object} dictionary
-   * @param {string[]} path
-   * @returns {object|null}
    */
-  findTokenByPath(dictionary, path) {
+  findTokenByPath(dictionary: Dictionary, path: string[]): Token | null {
     if (!dictionary || !dictionary.allTokens) return null;
     
     return dictionary.allTokens.find(token => {
       const tokenPath = token.path.join('.');
       const searchPath = path.join('.');
       return tokenPath === searchPath;
-    });
+    }) || null;
   }
 
   /**
    * Convert string to kebab-case
-   * @param {string} str
-   * @returns {string}
    */
-  toKebabCase(str) {
+  toKebabCase(str: string): string {
     return str.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/_/g, '-').toLowerCase();
   }
 }

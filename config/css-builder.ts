@@ -1,19 +1,21 @@
+import type { CSSBuilderOptions, ProcessedTokens } from './types.js';
+
 /**
  * CSS template helpers for clean output generation
  */
 export class CSSBuilder {
-  constructor(config = {}) {
+  private config: CSSBuilderOptions;
+  private indentSize: number;
+
+  constructor(config: CSSBuilderOptions = {}) {
     this.config = config;
     this.indentSize = config.indentSize || 2;
   }
 
   /**
    * Indent text by specified levels
-   * @param {string} str
-   * @param {number} level
-   * @returns {string}
    */
-  indent(str, level = 1) {
+  indent(str: string, level: number = 1): string {
     return str
       .split('\n')
       .map(line => line ? ' '.repeat(this.indentSize * level) + line : '')
@@ -22,89 +24,64 @@ export class CSSBuilder {
 
   /**
    * Create a CSS block
-   * @param {string} content
-   * @param {number} level
-   * @returns {string}
    */
-  block(content, level = 1) {
+  block(content: string, level: number = 1): string {
     return `{\n${this.indent(content, level)}\n}`;
   }
 
   /**
    * Create a CSS rule
-   * @param {string} selector
-   * @param {string} content
-   * @returns {string}
    */
-  rule(selector, content) {
+  rule(selector: string, content: string): string {
     return `${selector} {\n${this.indent(content, 1)}\n}`;
   }
 
   /**
    * Create a CSS property
-   * @param {string} name
-   * @param {string} value
-   * @returns {string}
    */
-  property(name, value) {
+  property(name: string, value: string): string {
     return `${name}: ${value};`;
   }
 
   /**
    * Create an import statement
-   * @param {string} path
-   * @returns {string}
    */
-  import(path) {
+  import(path: string): string {
     return `@import '${path}';`;
   }
 
   /**
    * Create a @theme directive
-   * @param {string} content
-   * @returns {string}
    */
-  theme(content) {
+  theme(content: string): string {
     return `@theme ${this.block(content, 1)}`;
   }
 
   /**
    * Create a @layer directive
-   * @param {string} name
-   * @param {string} content
-   * @returns {string}
    */
-  layer(name, content) {
+  layer(name: string, content: string): string {
     return `@layer ${name} ${this.block(content, 1)}`;
   }
 
   /**
    * Create a @utility directive
-   * @param {string} name
-   * @param {string} content
-   * @returns {string}
    */
-  utility(name, content) {
+  utility(name: string, content: string): string {
     return `@utility ${name} ${this.block(content, 1)}`;
   }
 
   /**
    * Create a @custom-variant directive
-   * @param {string} name
-   * @param {string} selector
-   * @returns {string}
    */
-  customVariant(name, selector) {
+  customVariant(name: string, selector: string): string {
     return `@custom-variant ${name} (${selector});`;
   }
 
   /**
    * Join array elements with separator, filtering out falsy values
-   * @param {Array} arr
-   * @param {string} separator
-   * @returns {string}
    */
-  join(arr, separator = '\n') {
+  join(arr: any[], separator: string = '\n'): string {
     return arr.filter(Boolean).join(separator);
   }
 }
@@ -113,7 +90,11 @@ export class CSSBuilder {
  * Specialized CSS output generator for Tailwind v4
  */
 export class TailwindCSSGenerator {
-  constructor(config) {
+  private configObj: any;
+  private config: any;
+  private css: CSSBuilder;
+
+  constructor(config: any) {
     // Handle both PluginConfiguration object and raw config object
     this.configObj = config;
     this.config = config.getAll ? config.getAll() : config;
@@ -122,10 +103,8 @@ export class TailwindCSSGenerator {
 
   /**
    * Generate complete CSS output
-   * @param {object} processedTokens
-   * @returns {string}
    */
-  generate(processedTokens) {
+  generate(processedTokens: ProcessedTokens): string {
     const parts = [
       this.generateImport(),
       this.generateCustomVariants(processedTokens.themeVars),
@@ -139,9 +118,8 @@ export class TailwindCSSGenerator {
 
   /**
    * Generate import statement
-   * @returns {string|null}
    */
-  generateImport() {
+  generateImport(): string | null {
     return this.config.includeImport
       ? this.css.import(this.config.importPath)
       : null;
@@ -149,10 +127,8 @@ export class TailwindCSSGenerator {
 
   /**
    * Generate custom variants
-   * @param {Map} themeVars
-   * @returns {string|null}
    */
-  generateCustomVariants(themeVars) {
+  generateCustomVariants(themeVars: Map<string, string[]>): string | null {
     if (!this.config.generateCustomVariants || !themeVars.size) {
       return null;
     }
@@ -170,10 +146,8 @@ export class TailwindCSSGenerator {
 
   /**
    * Generate @theme directive
-   * @param {object} processedTokens
-   * @returns {string}
    */
-  generateTheme(processedTokens) {
+  generateTheme(processedTokens: ProcessedTokens): string {
     const themeVars = [
       ...processedTokens.baseVars,
       ...processedTokens.spacing
@@ -184,11 +158,9 @@ export class TailwindCSSGenerator {
 
   /**
    * Generate @layer directives
-   * @param {object} processedTokens
-   * @returns {string|null}
    */
-  generateLayers(processedTokens) {
-    const layers = [];
+  generateLayers(processedTokens: ProcessedTokens): string | null {
+    const layers: string[] = [];
 
     // Base layer for theme variants
     if (processedTokens.themeVars.size > 0) {
@@ -214,10 +186,8 @@ export class TailwindCSSGenerator {
 
   /**
    * Generate utility directives
-   * @param {Array} utilities
-   * @returns {string|null}
    */
-  generateUtilities(utilities) {
+  generateUtilities(utilities: string[]): string | null {
     return utilities.length > 0
       ? this.css.join(utilities, '\n\n')
       : null;
@@ -225,10 +195,8 @@ export class TailwindCSSGenerator {
 
   /**
    * Fallback method to create theme selector string
-   * @param {string} variant
-   * @returns {string}
    */
-  getThemeSelector(variant) {
+  getThemeSelector(variant: string): string {
     const themeSelectorType = this.config.themeSelectorType || this.config.themeSelector || 'data';
     const themeSelectorProperty = this.config.themeSelectorProperty || 'theme';
     

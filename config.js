@@ -1,7 +1,7 @@
 import StyleDictionary from "style-dictionary";
-import { createTailwindV4Plugin } from "./config/index.js";
+import { createTailwindV4Plugin } from "./dist/index.js";
 import { register } from "@tokens-studio/sd-transforms";
-import { registerCustomTransforms, registerTransformGroup } from "./config/transforms.js";
+import { registerCustomTransforms, registerTransformGroup } from "./dist/transforms.js";
 
 // Register Tokens Studio transforms
 register(StyleDictionary);

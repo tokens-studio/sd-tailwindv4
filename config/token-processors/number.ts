@@ -1,31 +1,23 @@
 import { BaseTokenProcessor } from './base.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
 
 /**
  * Processor for number tokens
  * Handles tokens of type 'number' (e.g., z-index values)
  */
 export class NumberTokenProcessor extends BaseTokenProcessor {
-  constructor(options = {}) {
+  private numberPrefix: string;
+
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     super(options);
     this.numberPrefix = options.numberPrefix || '';
   }
 
-  /**
-   * Check if this processor can handle the given token
-   * @param {object} token
-   * @returns {boolean}
-   */
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     return token.$type === 'number';
   }
 
-  /**
-   * Process number token and generate CSS custom property
-   * @param {object} token
-   * @param {object} dictionary
-   * @returns {object}
-   */
-  process(token, dictionary) {
+  process(token: Token, _dictionary: Dictionary): ProcessedToken | null {
     const tokenValue = this.getTokenValue(token);
     if (tokenValue === null || tokenValue === undefined) {
       return null;
@@ -51,10 +43,8 @@ export class NumberTokenProcessor extends BaseTokenProcessor {
 
   /**
    * Get the appropriate prefix for number tokens based on their path
-   * @param {string[]} path
-   * @returns {string}
    */
-  getNumberPrefix(path) {
+  getNumberPrefix(path: string[]): string {
     // Check if this is a z-index token
     if (path.includes('zIndex') || path.includes('z-index') || path.some(p => p.toLowerCase().includes('zindex'))) {
       return 'z-';

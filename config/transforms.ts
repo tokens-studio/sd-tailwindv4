@@ -2,15 +2,28 @@
  * Custom Style Dictionary transforms for Tailwind v4 plugin
  * These transforms replace custom logic in token processors with standardized SD transforms
  */
+import type { Token } from './types.js';
+
+interface Transform {
+  name: string;
+  type: string;
+  matcher?: (token: Token) => boolean;
+  transform: (token: Token) => any;
+}
+
+interface TransformGroup {
+  name: string;
+  transforms: string[];
+}
 
 /**
  * Transform to convert any string to kebab-case
  * Replaces the custom toKebabCase function used throughout processors
  */
-export const nameKebabTransform = {
+export const nameKebabTransform: Transform = {
   name: "name/kebab-case",
   type: "name",
-  transform: (token) => {
+  transform: (token: Token) => {
     return token.path
       .map((part) => part.replace(/([A-Z])/g, "-$1").toLowerCase())
       .join("-");
@@ -21,13 +34,13 @@ export const nameKebabTransform = {
  * Transform specifically for utility class names
  * Ensures consistent kebab-case naming for @utility directives
  */
-export const utilityNameTransform = {
+export const utilityNameTransform: Transform = {
   name: "name/utility-kebab",
   type: "name",
-  matcher: (token) => {
+  matcher: (token: Token) => {
     return ["utility", "composition"].includes(token.$type);
   },
-  transform: (token) => {
+  transform: (token: Token) => {
     // Remove common prefixes and convert to kebab-case
     let path = [...token.path];
 
@@ -53,13 +66,13 @@ export const utilityNameTransform = {
  * Transform to convert pixel values to rem
  * Useful for consistent sizing across the design system
  */
-export const sizeRemTransform = {
+export const sizeRemTransform: Transform = {
   name: "size/rem",
   type: "value",
-  matcher: (token) => {
+  matcher: (token: Token) => {
     return ["dimension", "sizing", "spacing", "fontSize"].includes(token.$type);
   },
-  transform: (token) => {
+  transform: (token: Token) => {
     const value = token.$value;
     if (typeof value === "string" && value.endsWith("px")) {
       const pixelValue = parseFloat(value);
@@ -73,11 +86,11 @@ export const sizeRemTransform = {
  * Transform to ensure color values are in a consistent format
  * Converts various color formats to a standardized CSS format
  */
-export const colorCssTransform = {
+export const colorCssTransform: Transform = {
   name: "color/css-format",
   type: "value",
-  matcher: (token) => token.$type === "color",
-  transform: (token) => {
+  matcher: (token: Token) => token.$type === "color",
+  transform: (token: Token) => {
     const value = token.$value;
     // If it's already a proper CSS color format, return as-is
     if (typeof value === "string") {
@@ -96,10 +109,10 @@ export const colorCssTransform = {
  * Transform to handle z-index values
  * Ensures z-index values are properly formatted
  */
-export const zIndexTransform = {
+export const zIndexTransform: Transform = {
   name: "zindex/number",
   type: "value",
-  matcher: (token) => {
+  matcher: (token: Token) => {
     return (
       token.$type === "number" &&
       (token.path.includes("zIndex") ||
@@ -107,7 +120,7 @@ export const zIndexTransform = {
         token.path.some((p) => p.toLowerCase().includes("zindex")))
     );
   },
-  transform: (token) => {
+  transform: (token: Token) => {
     const value = token.$value;
     if (value === "auto") return "auto";
     return parseInt(value, 10);
@@ -118,18 +131,18 @@ export const zIndexTransform = {
  * Transform to handle letter spacing values
  * Ensures consistent em units for letter spacing
  */
-export const letterSpacingTransform = {
+export const letterSpacingTransform: Transform = {
   name: "letterSpacing/em",
   type: "value",
-  matcher: (token) => {
+  matcher: (token: Token) => {
     return (
       token.$type === "letterSpacing" ||
       (token.$type === "dimension" &&
-        token.name &&
+        typeof token.name === "string" &&
         token.name.includes("tracking"))
     );
   },
-  transform: (token) => {
+  transform: (token: Token) => {
     const value = token.$value;
     if (typeof value === "string" && value.endsWith("em")) {
       return value;
@@ -145,11 +158,11 @@ export const letterSpacingTransform = {
  * Transform to handle font weight values
  * Ensures font weights are numbers or valid CSS keywords
  */
-export const fontWeightTransform = {
+export const fontWeightTransform: Transform = {
   name: "fontWeight/number",
   type: "value",
-  matcher: (token) => token.$type === "fontWeight",
-  transform: (token) => {
+  matcher: (token: Token) => token.$type === "fontWeight",
+  transform: (token: Token) => {
     const value = token.$value;
     const weightMap = {
       thin: 100,
@@ -175,11 +188,11 @@ export const fontWeightTransform = {
  * Transform to handle duration values
  * Ensures consistent millisecond format
  */
-export const durationTransform = {
+export const durationTransform: Transform = {
   name: "duration/ms",
   type: "value",
-  matcher: (token) => token.$type === "duration",
-  transform: (token) => {
+  matcher: (token: Token) => token.$type === "duration",
+  transform: (token: Token) => {
     const value = token.$value;
     if (typeof value === "string" && value.endsWith("ms")) {
       return value;
@@ -195,16 +208,16 @@ export const durationTransform = {
  * Transform to normalize CSS property names for utilities
  * Converts camelCase to kebab-case for CSS properties
  */
-export const cssPropertyTransform = {
+export const cssPropertyTransform: Transform = {
   name: "css/property-kebab",
   type: "value",
-  matcher: (token) => {
+  matcher: (token: Token) => {
     return (
       ["utility", "composition", "component"].includes(token.$type) &&
       typeof token.$value === "object"
     );
   },
-  transform: (token) => {
+  transform: (token: Token) => {
     const value = token.$value;
     if (typeof value !== "object") return value;
 
@@ -226,7 +239,7 @@ export const cssPropertyTransform = {
 /**
  * Collection of all custom transforms
  */
-export const customTransforms = [
+export const customTransforms: Transform[] = [
   nameKebabTransform,
   utilityNameTransform,
   sizeRemTransform,
@@ -240,9 +253,8 @@ export const customTransforms = [
 
 /**
  * Register all custom transforms with Style Dictionary
- * @param {StyleDictionary} StyleDictionary - Style Dictionary instance
  */
-export function registerCustomTransforms(StyleDictionary) {
+export function registerCustomTransforms(StyleDictionary: any): void {
   customTransforms.forEach((transform) => {
     StyleDictionary.registerTransform(transform);
   });
@@ -251,7 +263,7 @@ export function registerCustomTransforms(StyleDictionary) {
 /**
  * Custom transform group that combines tokens-studio transforms with our custom ones
  */
-export const tailwindTransformGroup = {
+export const tailwindTransformGroup: TransformGroup = {
   name: "tailwind-v4",
   transforms: [
     // Tokens Studio transforms (commonly available)
@@ -271,8 +283,7 @@ export const tailwindTransformGroup = {
 
 /**
  * Register the custom transform group
- * @param {StyleDictionary} StyleDictionary - Style Dictionary instance
  */
-export function registerTransformGroup(StyleDictionary) {
+export function registerTransformGroup(StyleDictionary: any): void {
   StyleDictionary.registerTransformGroup(tailwindTransformGroup);
 }

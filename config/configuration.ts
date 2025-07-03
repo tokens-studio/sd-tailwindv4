@@ -1,7 +1,9 @@
+import type { PluginConfig, ThemeSelectors, CustomVariants, ComponentHandling, UtilityGeneration, OutputOptions, TokenTypeMapping, ValidationResult } from './types.js';
+
 /**
  * Default configuration for the Tailwind v4 plugin
  */
-export const DEFAULT_CONFIG = {
+export const DEFAULT_CONFIG: PluginConfig = {
   // Token processing
   rootPropertyName: '_',
   themePattern: 'theme-content',
@@ -101,25 +103,25 @@ export const DEFAULT_CONFIG = {
  * Configuration validator and normalizer
  */
 export class PluginConfiguration {
-  constructor(userConfig = {}) {
+  private config: PluginConfig;
+
+  constructor(userConfig: Partial<PluginConfig> = {}) {
     this.config = this.validateAndNormalize(userConfig);
   }
 
   /**
    * Validate and normalize user configuration
-   * @param {object} userConfig
-   * @returns {object}
    */
-  validateAndNormalize(userConfig) {
-    const config = this.deepMerge(DEFAULT_CONFIG, userConfig);
+  validateAndNormalize(userConfig: Partial<PluginConfig>): PluginConfig {
+    const config = { ...DEFAULT_CONFIG, ...userConfig } as PluginConfig;
 
     // Normalize theme selector for backward compatibility
     if (typeof config.themeSelector === 'string') {
       config.themeSelectorType = config.themeSelector;
       config.themeSelectorProperty = 'theme';
     } else if (typeof config.themeSelector === 'object') {
-      config.themeSelectorType = config.themeSelector.type || 'data';
-      config.themeSelectorProperty = config.themeSelector.property || 'theme';
+      config.themeSelectorType = (config.themeSelector as any).type || 'data';
+      config.themeSelectorProperty = (config.themeSelector as any).property || 'theme';
     }
 
     // Merge legacy tokenTypeMap with new tokenTypeMapping for backward compatibility
@@ -135,11 +137,8 @@ export class PluginConfiguration {
 
   /**
    * Deep merge two objects, with user config taking precedence
-   * @param {object} target
-   * @param {object} source
-   * @returns {object}
    */
-  deepMerge(target, source) {
+  deepMerge(target: Record<string, any>, source: Record<string, any>): Record<string, any> {
     const result = { ...target };
 
     for (const key in source) {
@@ -155,11 +154,10 @@ export class PluginConfiguration {
 
   /**
    * Validate configuration values
-   * @param {object} config
    */
-  validateConfig(config) {
+  validateConfig(config: PluginConfig): void {
     const validThemeSelectors = ['class', 'data'];
-    if (!validThemeSelectors.includes(config.themeSelectorType)) {
+    if (config.themeSelectorType && !validThemeSelectors.includes(config.themeSelectorType)) {
       throw new Error(`Invalid themeSelector type: ${config.themeSelectorType}. Must be one of: ${validThemeSelectors.join(', ')}`);
     }
 
@@ -174,27 +172,22 @@ export class PluginConfiguration {
 
   /**
    * Get configuration value
-   * @param {string} key
-   * @returns {any}
    */
-  get(key) {
+  get<K extends keyof PluginConfig>(key: K): PluginConfig[K] {
     return this.config[key];
   }
 
   /**
    * Get all configuration
-   * @returns {object}
    */
-  getAll() {
+  getAll(): PluginConfig {
     return { ...this.config };
   }
 
   /**
    * Create theme selector string
-   * @param {string} variant
-   * @returns {string}
    */
-  getThemeSelector(variant) {
+  getThemeSelector(variant: string): string {
     return this.config.themeSelectorType === 'class'
       ? `.${variant}`
       : `[data-${this.config.themeSelectorProperty}="${variant}"]`;

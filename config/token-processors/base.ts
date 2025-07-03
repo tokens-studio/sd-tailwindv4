@@ -1,10 +1,22 @@
 import { getTokenValue, toKebabCase } from './utils.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
+
+export interface TokenPathResult {
+  finalPath: string[];
+  variant: string | null;
+  isTheme: boolean;
+  originalPath: string[];
+}
 
 /**
  * Base class for token processors
  */
 export class BaseTokenProcessor {
-  constructor(options = {}) {
+  protected options: TokenProcessorConfig;
+  protected rootPropertyName: string;
+  protected themePattern: string;
+
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     this.options = options;
     this.rootPropertyName = options.rootPropertyName || '_';
     this.themePattern = options.themePattern || 'theme-content';
@@ -12,56 +24,43 @@ export class BaseTokenProcessor {
 
   /**
    * Check if this processor can handle the given token
-   * @param {object} token
-   * @returns {boolean}
    */
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     throw new Error('canProcess must be implemented by subclasses');
   }
 
   /**
    * Process the token and return the result
-   * @param {object} token
-   * @param {object} dictionary
-   * @returns {object}
    */
-  process(token, dictionary) {
+  process(token: Token, dictionary: Dictionary): ProcessedToken | ProcessedToken[] | null {
     throw new Error('process must be implemented by subclasses');
   }
 
   /**
    * Normalize token name by removing prefixes and converting to kebab-case
-   * @param {string} name
-   * @returns {string}
    */
-  normalizeTokenName(name) {
+  normalizeTokenName(name: string): string {
     return name.replace(/^sd\./, "").replace(/\./g, "-");
   }
 
   /**
    * Convert camelCase to kebab-case
-   * @param {string} str
-   * @returns {string}
    */
-  camelToKebab(str) {
+  camelToKebab(str: string): string {
     return str.replace(/([A-Z])/g, '-$1').toLowerCase();
   }
 
   /**
    * Get token value with fallback
-   * @param {object} token
-   * @returns {any}
    */
-  getTokenValue(token) {
+  getTokenValue(token: Token): any {
     return getTokenValue(token);
   }
 
   /**
    * Process token path and handle theme variants globally
-   * @param {object} token
-   * @returns {object} { finalPath, variant, isTheme }
    */
-  processTokenPath(token) {
+  processTokenPath(token: Token): TokenPathResult {
     // Get the original token path (before kebab-case conversion)
     let originalPath = [...token.path];
 
@@ -98,10 +97,8 @@ export class BaseTokenProcessor {
 
   /**
    * Check if a token path represents a theme token
-   * @param {string[]} path - Original path (before kebab-case conversion)
-   * @returns {boolean}
    */
-  isThemeToken(path) {
+  isThemeToken(path: string[]): boolean {
     // Check if the path contains the theme pattern
     // Default pattern is 'theme-content' which means path contains 'theme'
     if (this.themePattern === 'theme-content') {
@@ -114,19 +111,15 @@ export class BaseTokenProcessor {
 
   /**
    * Check if the last part of the path is the root property
-   * @param {string[]} path - Original path (before kebab-case conversion)
-   * @returns {boolean}
    */
-  isRootProperty(path) {
+  isRootProperty(path: string[]): boolean {
     return path[path.length - 1] === this.rootPropertyName;
   }
 
   /**
    * Get the theme variant from a token path
-   * @param {string[]} path - Original path (before kebab-case conversion)
-   * @returns {string|null}
    */
-  getThemeVariant(path) {
+  getThemeVariant(path: string[]): string | null {
     if (!this.isThemeToken(path)) {
       return null;
     }
@@ -140,15 +133,13 @@ export class BaseTokenProcessor {
 
     // For theme tokens, if the last part is not the root property,
     // then it's a theme variant (e.g., 'dark', 'light', etc.)
-    return lastPart;
+    return lastPart || null;
   }
 
   /**
    * Convert path to kebab-case for CSS variable names
-   * @param {string[]} path
-   * @returns {string[]}
    */
-  pathToKebabCase(path) {
+  pathToKebabCase(path: string[]): string[] {
     return path.map(p => toKebabCase(p));
   }
 }

@@ -1,12 +1,21 @@
 import { BaseTokenProcessor } from './base.js';
 import { toKebabCase } from './utils.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
+
+interface TypeMapping {
+  prefix: string;
+  preserveUnit: boolean;
+  defaultUnit: string | null;
+}
 
 /**
  * Processor for typography tokens with proper Tailwind CSS v4 naming
  * This processor adapts Style Dictionary tokens into Tailwind CSS variable names, avoiding double prefixes.
  */
 export class TypographyTokenProcessor extends BaseTokenProcessor {
-  constructor(options = {}) {
+  private typeMappings: Record<string, TypeMapping>;
+
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     super(options);
 
     // Define token type mappings to Tailwind CSS variable prefixes
@@ -19,7 +28,7 @@ export class TypographyTokenProcessor extends BaseTokenProcessor {
     };
   }
 
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     // Handle standard typography token types
     if (['fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'fontFamily'].includes(token.$type)) {
       return true;
@@ -33,7 +42,7 @@ export class TypographyTokenProcessor extends BaseTokenProcessor {
     return false;
   }
 
-  determineTokenType(token) {
+  determineTokenType(token: Token): string {
     // Handle dimension tokens that are actually letter spacing
     if (token.$type === 'dimension' && token.name && token.name.includes('tracking')) {
       return 'letterSpacing';
@@ -41,7 +50,7 @@ export class TypographyTokenProcessor extends BaseTokenProcessor {
     return token.$type;
   }
 
-  process(token, dictionary) {
+  process(token: Token, dictionary: Dictionary): ProcessedToken | null {
     const value = this.getTokenValue(token);
     const tokenType = this.determineTokenType(token);
     const mapping = this.typeMappings[tokenType];

@@ -1,43 +1,36 @@
+import type { Token } from '../types.js';
+
 /**
  * Shared utility functions for token processors
  */
 
 /**
  * Convert camelCase or PascalCase to kebab-case
- * @param {string} str
- * @returns {string}
  */
-export function toKebabCase(str) {
+export function toKebabCase(str: string): string {
   return str.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/_/g, '-').toLowerCase();
 }
 
 /**
  * Normalize token name by removing prefixes and converting to kebab-case
- * @param {string} name
- * @returns {string}
  */
-export function normalizeTokenName(name) {
+export function normalizeTokenName(name: string): string {
   return name.replace(/^sd\./, "").replace(/\./g, "-");
 }
 
 /**
  * Get token value with fallback
- * @param {object} token
- * @returns {any}
  */
-export function getTokenValue(token) {
+export function getTokenValue(token: Token): any {
   return token.$value ?? token.value;
 }
 
 /**
  * Convert object to CSS properties with kebab-case conversion
- * @param {object} obj
- * @param {number} indentLevel
- * @returns {string}
  */
-export function objectToCssProperties(obj, indentLevel = 0) {
+export function objectToCssProperties(obj: Record<string, any>, indentLevel: number = 0): string {
   const indent = '  '.repeat(indentLevel);
-  const properties = [];
+  const properties: string[] = [];
 
   for (const [key, value] of Object.entries(obj)) {
     if (key.startsWith('&')) {
@@ -56,11 +49,9 @@ export function objectToCssProperties(obj, indentLevel = 0) {
 
 /**
  * Convert object to flat CSS properties string (for utilities)
- * @param {object} obj
- * @returns {string}
  */
-export function objectToFlatCssProperties(obj) {
-  const properties = [];
+export function objectToFlatCssProperties(obj: Record<string, any>): string {
+  const properties: string[] = [];
 
   for (const [key, value] of Object.entries(obj)) {
     if (key.startsWith('&')) {
@@ -79,33 +70,24 @@ export function objectToFlatCssProperties(obj) {
 
 /**
  * Create a CSS variable name with prefix and path
- * @param {string} prefix
- * @param {string[]} path
- * @returns {string}
  */
-export function createCssVariableName(prefix, path) {
-  const cleanPath = path.filter(Boolean);
+export function createCssVariableName(prefix: string, path: string[]): string {
+  const cleanPath = path.filter((p): p is string => Boolean(p));
   return `--${prefix}-${cleanPath.join('-')}`;
 }
 
 /**
  * Create a utility class name with prefix and path
- * @param {string} prefix
- * @param {string[]} path
- * @returns {string}
  */
-export function createUtilityClassName(prefix, path) {
-  const cleanPath = path.filter(Boolean);
+export function createUtilityClassName(prefix: string, path: string[]): string {
+  const cleanPath = path.filter((p): p is string => Boolean(p));
   return `${prefix}${cleanPath.join('-')}`;
 }
 
 /**
  * Remove redundant prefix from path if it matches
- * @param {string[]} path
- * @param {string} prefix
- * @returns {string[]}
  */
-export function removeRedundantPrefix(path, prefix) {
+export function removeRedundantPrefix(path: string[], prefix: string): string[] {
   const prefixKebab = toKebabCase(prefix);
   if (path[0] === prefixKebab) {
     return path.slice(1);
@@ -115,21 +97,18 @@ export function removeRedundantPrefix(path, prefix) {
 
 /**
  * Common theme processing result structure
- * @typedef {object} ThemeProcessingResult
- * @property {string[]} finalPath
- * @property {string|null} variant
- * @property {boolean} isTheme
- * @property {string[]} originalPath
  */
+export interface ThemeProcessingResult {
+  finalPath: string[];
+  variant: string | null;
+  isTheme: boolean;
+  originalPath: string[];
+}
 
 /**
  * Shared theme processing logic
- * @param {object} token
- * @param {string} rootPropertyName
- * @param {string} themePattern
- * @returns {ThemeProcessingResult}
  */
-export function processTokenPath(token, rootPropertyName = '_', themePattern = 'theme-content') {
+export function processTokenPath(token: Token, rootPropertyName: string = '_', themePattern: string = 'theme-content'): ThemeProcessingResult {
   // Get the original token path (before kebab-case conversion)
   let originalPath = [...token.path];
 
@@ -166,11 +145,8 @@ export function processTokenPath(token, rootPropertyName = '_', themePattern = '
 
 /**
  * Check if a token path represents a theme token
- * @param {string[]} path - Original path (before kebab-case conversion)
- * @param {string} themePattern
- * @returns {boolean}
  */
-export function isThemeToken(path, themePattern = 'theme-content') {
+export function isThemeToken(path: string[], themePattern: string = 'theme-content'): boolean {
   // Check if the path contains the theme pattern
   // Default pattern is 'theme-content' which means path contains 'theme'
   if (themePattern === 'theme-content') {
@@ -183,21 +159,15 @@ export function isThemeToken(path, themePattern = 'theme-content') {
 
 /**
  * Check if the last part of the path is the root property
- * @param {string[]} path - Original path (before kebab-case conversion)
- * @param {string} rootPropertyName
- * @returns {boolean}
  */
-export function isRootProperty(path, rootPropertyName = '_') {
+export function isRootProperty(path: string[], rootPropertyName: string = '_'): boolean {
   return path[path.length - 1] === rootPropertyName;
 }
 
 /**
  * Get the theme variant from a token path
- * @param {string[]} path - Original path (before kebab-case conversion)
- * @param {string} rootPropertyName
- * @returns {string|null}
  */
-export function getThemeVariant(path, rootPropertyName = '_') {
+export function getThemeVariant(path: string[], rootPropertyName: string = '_'): string | null {
   if (!isThemeToken(path)) {
     return null;
   }
@@ -211,5 +181,5 @@ export function getThemeVariant(path, rootPropertyName = '_') {
 
   // For theme tokens, if the last part is not the root property,
   // then it's a theme variant (e.g., 'dark', 'light', etc.)
-  return lastPart;
+  return lastPart || null;
 }

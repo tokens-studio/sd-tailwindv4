@@ -1,34 +1,27 @@
 import { BaseTokenProcessor } from './base.js';
 import { objectToFlatCssProperties } from './utils.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
 
 /**
  * Processor for composition tokens
  * Handles tokens of type 'composition' and generates @utility directives
  */
 export class CompositionTokenProcessor extends BaseTokenProcessor {
-  constructor(options = {}) {
+  private utilityPrefix: string;
+  private generateUtilities: boolean;
+
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     super(options);
     this.utilityPrefix = options.utilityGeneration?.prefix || 'u-';
     this.generateUtilities = options.utilityGeneration?.enabled !== false;
   }
 
-  /**
-   * Check if this processor can handle the given token
-   * @param {object} token
-   * @returns {boolean}
-   */
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     return token.$type === 'composition' || 
            (token.$type === 'utility' && token.$extensions?.$type === 'utility');
   }
 
-  /**
-   * Process composition token and generate @utility directive
-   * @param {object} token
-   * @param {object} dictionary
-   * @returns {object}
-   */
-  process(token, dictionary) {
+  process(token: Token, _dictionary: Dictionary): ProcessedToken | null {
     const tokenValue = this.getTokenValue(token);
     if (!tokenValue || typeof tokenValue !== 'object') {
       return null;

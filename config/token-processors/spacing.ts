@@ -1,11 +1,15 @@
 import { BaseTokenProcessor } from './base.js';
 import { toKebabCase } from './utils.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
 
 /**
  * Processor for spacing/dimension tokens with proper Tailwind CSS v4 naming
  */
 export class SpacingTokenProcessor extends BaseTokenProcessor {
-  constructor(options = {}) {
+  private defaultPrefix: string;
+  private specialPrefixes: Record<string, string>;
+
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     super(options);
     this.defaultPrefix = options.spacingPrefix || 'spacing';
 
@@ -18,7 +22,7 @@ export class SpacingTokenProcessor extends BaseTokenProcessor {
     };
   }
 
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     // Process dimension, sizing, and spacing tokens
     if (!['dimension', 'sizing', 'spacing'].includes(token.$type)) {
       return false;
@@ -37,7 +41,7 @@ export class SpacingTokenProcessor extends BaseTokenProcessor {
     return true;
   }
 
-  process(token, dictionary) {
+  process(token: Token, dictionary: Dictionary): ProcessedToken | null {
     const value = this.getTokenValue(token);
 
     // Use global theme processing logic
@@ -50,7 +54,7 @@ export class SpacingTokenProcessor extends BaseTokenProcessor {
     let prefix = this.defaultPrefix;
     const firstSegment = path[0];
 
-    if (this.specialPrefixes[firstSegment]) {
+    if (firstSegment && this.specialPrefixes[firstSegment]) {
       prefix = this.specialPrefixes[firstSegment];
       // Remove the first segment since it becomes the prefix
       path = path.slice(1);

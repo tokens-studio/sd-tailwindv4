@@ -1,18 +1,19 @@
 import { BaseTokenProcessor } from './base.js';
+import type { Token, Dictionary, ProcessedToken, TokenProcessorConfig } from '../types.js';
 
 /**
  * Processor for color tokens with theme support
  */
 export class ColorTokenProcessor extends BaseTokenProcessor {
-  constructor(options = {}) {
+  constructor(options: TokenProcessorConfig = {} as TokenProcessorConfig) {
     super(options);
   }
 
-  canProcess(token) {
+  canProcess(token: Token): boolean {
     return token.$type === 'color';
   }
 
-  process(token, dictionary) {
+  process(token: Token, dictionary: Dictionary): ProcessedToken | null {
     const value = this.getTokenValue(token);
 
     // Use global theme processing logic

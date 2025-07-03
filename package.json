@@ -5,9 +5,13 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build-tokens": "style-dictionary build --config ./config.js --verbose",
+    "build-ts": "tsc",
+    "build-tokens": "npm run build-ts && style-dictionary build --config ./config.js --verbose",
+    "build": "node build.js",
     "dev": "vite",
-    "start": "npm run build-tokens && npm run dev"
+    "start": "npm run build-tokens && npm run dev",
+    "type-check": "tsc --noEmit",
+    "lint": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +19,9 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.7",
     "style-dictionary": "^5.0.0",
-    "tailwindcss": "^4.1.7"
+    "tailwindcss": "^4.1.7",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
   },
   "dependencies": {
     "@tokens-studio/sd-transforms": "^1.3.0"
