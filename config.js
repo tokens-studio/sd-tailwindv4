@@ -1,9 +1,14 @@
 import StyleDictionary from "style-dictionary";
 import { createTailwindV4Plugin } from "./config/index.js";
 import { register } from "@tokens-studio/sd-transforms";
+import { registerCustomTransforms, registerTransformGroup } from "./config/transforms.js";
 
 // Register Tokens Studio transforms
 register(StyleDictionary);
+
+// Register our custom transforms and transform group
+registerCustomTransforms(StyleDictionary);
+registerTransformGroup(StyleDictionary);
 
 // Register the new modular Tailwind v4 plugin with minimal configuration
 // All the common settings are now defaults, but can be overridden as needed
@@ -34,6 +39,7 @@ export default {
     css: {
       buildPath: "dist/",
       transformGroup: "tokens-studio",
+      transforms: ['name/utility-kebab'],
       files: [
         {
           destination: "design-system.css",
@@ -46,6 +52,7 @@ export default {
     demo: {
       buildPath: "demo/",
       transformGroup: "tokens-studio",
+      transforms: ['name/utility-kebab'],
       files: [
         {
           destination: "global.css",

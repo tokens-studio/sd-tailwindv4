@@ -20,10 +20,24 @@ export class TypographyTokenProcessor extends BaseTokenProcessor {
   }
 
   canProcess(token) {
-    return ['fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'fontFamily'].includes(token.$type);
+    // Handle standard typography token types
+    if (['fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'fontFamily'].includes(token.$type)) {
+      return true;
+    }
+    
+    // Handle dimension tokens that are actually letter spacing (tracking)
+    if (token.$type === 'dimension' && token.name && token.name.includes('tracking')) {
+      return true;
+    }
+    
+    return false;
   }
 
   determineTokenType(token) {
+    // Handle dimension tokens that are actually letter spacing
+    if (token.$type === 'dimension' && token.name && token.name.includes('tracking')) {
+      return 'letterSpacing';
+    }
     return token.$type;
   }
 

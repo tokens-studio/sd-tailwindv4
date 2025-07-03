@@ -4,6 +4,9 @@ import { UtilityTokenProcessor } from './token-processors/utility.js';
 import { TypographyTokenProcessor } from './token-processors/typography.js';
 import { ShadowTokenProcessor } from './token-processors/shadow.js';
 import { AnimationTokenProcessor } from './token-processors/animation.js';
+import { ComponentTokenProcessor } from './token-processors/component.js';
+import { NumberTokenProcessor } from './token-processors/number.js';
+import { CompositionTokenProcessor } from './token-processors/composition.js';
 
 /**
  * Token processing engine that orchestrates all token processors
@@ -25,6 +28,9 @@ export class TokenProcessingEngine {
     this.registerProcessor('typography', new TypographyTokenProcessor(this.config.getAll()));
     this.registerProcessor('shadow', new ShadowTokenProcessor(this.config.getAll()));
     this.registerProcessor('animation', new AnimationTokenProcessor(this.config.getAll()));
+    this.registerProcessor('component', new ComponentTokenProcessor(this.config.getAll()));
+    this.registerProcessor('number', new NumberTokenProcessor(this.config.getAll()));
+    this.registerProcessor('composition', new CompositionTokenProcessor(this.config.getAll()));
   }
 
   /**
@@ -169,10 +175,24 @@ export class TokenProcessingEngine {
 
       case 'composition':
         if (processed.properties) {
-          result.compositions.push(processed.properties);
+          result.utilities.push(processed.properties);
         }
-        if (processed.className && processed.cssProperties) {
-          result.components.push(`${processed.className} {\n  ${processed.cssProperties}\n}`);
+        break;
+
+      case 'component':
+        if (processed.value) {
+          result.components.push(processed.value);
+        }
+        break;
+
+      case 'number':
+        const numberVarString = `${processed.name}: ${processed.value};`;
+        if (processed.variant) {
+          const arr = result.themeVars.get(processed.variant) || [];
+          arr.push(numberVarString);
+          result.themeVars.set(processed.variant, arr);
+        } else {
+          result.baseVars.push(numberVarString);
         }
         break;
 

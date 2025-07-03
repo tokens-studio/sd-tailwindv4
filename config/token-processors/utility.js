@@ -11,7 +11,8 @@ export class UtilityTokenProcessor extends BaseTokenProcessor {
 
   process(token, dictionary) {
     const value = this.getTokenValue(token);
-    const name = normalizeTokenName(token.name);
+    // Use Style Dictionary's transformed name for consistent naming
+    const name = token.name;
 
     if (typeof value !== 'object') {
       return null;

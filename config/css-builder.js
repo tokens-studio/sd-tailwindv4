@@ -114,8 +114,10 @@ export class CSSBuilder {
  */
 export class TailwindCSSGenerator {
   constructor(config) {
-    this.config = config;
-    this.css = new CSSBuilder(config);
+    // Handle both PluginConfiguration object and raw config object
+    this.configObj = config;
+    this.config = config.getAll ? config.getAll() : config;
+    this.css = new CSSBuilder(this.config);
   }
 
   /**
@@ -174,8 +176,7 @@ export class TailwindCSSGenerator {
   generateTheme(processedTokens) {
     const themeVars = [
       ...processedTokens.baseVars,
-      ...processedTokens.spacing,
-      ...processedTokens.compositions
+      ...processedTokens.spacing
     ];
 
     return this.css.theme(this.css.join(themeVars, '\n'));
@@ -193,7 +194,7 @@ export class TailwindCSSGenerator {
     if (processedTokens.themeVars.size > 0) {
       const themeRules = Array.from(processedTokens.themeVars.entries())
         .map(([variant, vars]) => {
-          const selector = this.config.getThemeSelector(variant);
+          const selector = this.configObj.getThemeSelector ? this.configObj.getThemeSelector(variant) : this.getThemeSelector(variant);
           return this.css.rule(selector, this.css.join(vars, '\n'));
         });
 
@@ -220,5 +221,19 @@ export class TailwindCSSGenerator {
     return utilities.length > 0
       ? this.css.join(utilities, '\n\n')
       : null;
+  }
+
+  /**
+   * Fallback method to create theme selector string
+   * @param {string} variant
+   * @returns {string}
+   */
+  getThemeSelector(variant) {
+    const themeSelectorType = this.config.themeSelectorType || this.config.themeSelector || 'data';
+    const themeSelectorProperty = this.config.themeSelectorProperty || 'theme';
+    
+    return themeSelectorType === 'class'
+      ? `.${variant}`
+      : `[data-${themeSelectorProperty}="${variant}"]`;
   }
 }

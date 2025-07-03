@@ -64,6 +64,7 @@ export const DEFAULT_CONFIG = {
 
     // Utility tokens
     'utility': 'utility',
+    'composition': 'composition',
 
     // Animation tokens
     'duration': 'animation',
@@ -72,7 +73,7 @@ export const DEFAULT_CONFIG = {
     'keyframes': 'animation',
 
     // Layout tokens
-    'number': 'spacing',  // For z-index values
+    'number': 'number',  // For z-index and numeric values
 
     // Fallback for any other types
     'dimension': 'spacing',
@@ -82,7 +83,7 @@ export const DEFAULT_CONFIG = {
   // Legacy support
   themeSelector: 'data',
   generateCustomVariants: false,
-  createComponentClasses: false,
+  createComponentClasses: true,
   componentLayer: 'components',
   includeImport: true,
   importPath: 'tailwindcss',

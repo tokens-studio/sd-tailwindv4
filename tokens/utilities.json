@@ -1,11 +1,14 @@
 {
   "utilities": {
     "flex-center": {
-      "$type": "utility",
+      "$type": "composition",
       "$value": {
         "display": "flex",
         "alignItems": "center",
         "justifyContent": "center"
+      },
+      "$extensions": {
+        "$type": "utility"
       }
     },
     "flex-between": {
