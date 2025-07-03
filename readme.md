@@ -2,6 +2,10 @@
 
 A powerful, type-safe design token pipeline that transforms JSON design tokens into Tailwind v4 CSS using Style Dictionary. Built with TypeScript for enhanced developer experience and robust configuration management.
 
+> [!NOTE] 
+> There are some patterns in the JSON format that don't align appropriately with the DTGC or expected Style Dictionary format. This is an exploration and experiment into what is possible and how tokens can be structured and processed.
+
+
 ## 🎯 Features
 
 - **🔷 TypeScript-First**: Fully typed configuration with IntelliSense support
